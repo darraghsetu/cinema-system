@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package utils
 
 fun readIntNotNull() = readlnOrNull()?.toIntOrNull() ?: -1

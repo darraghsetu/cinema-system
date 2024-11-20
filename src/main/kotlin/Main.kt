@@ -2,8 +2,10 @@ import utils.*
 
 /*
  * NOTES:
- * Can mainMenu, bookingsMenu, ... be generalised into one menu function
+ * Can mainMenu, bookingsMenu, ... be generalised into one menu function?
  */
+
+private const val PROMPT = "> "
 
 fun main() {
     runMenu()
@@ -30,10 +32,10 @@ fun bookingsMenu() {
         val option = getUserOption()
 
         when (option) {
-            1 -> addBooking( )
-            2 -> viewBooking( )
-            3 -> viewBookingsByMovie( )
-            4 -> viewBookingsByDate( )
+            1 -> addBooking()
+            2 -> viewBooking()
+            3 -> viewBookingsByMovie()
+            4 -> viewBookingsByDate()
         }
     } while(option != 0)
 }
@@ -62,7 +64,7 @@ fun screeningsMenu() {
             2 -> deleteScreening()
             3 -> deleteScreeningsByMovie()
             4 -> deleteScreeningsByDate()
-            5 -> updateScreenings()
+            5 -> updateScreening()
             6 -> viewScreening()
             7 -> viewScreeningsByMovie()
             8 -> viewScreeningsByDate()
@@ -89,62 +91,67 @@ fun customersMenu() {
 
 fun reportsMenu() {
     printReportsMenu()
+    println()
 }
 
 // Bookings
 
-fun addBooking() = println("Add booking called")
+fun addBooking() = println("Add booking called\n")
 
-fun viewBooking() = println("View booking called")
+fun viewBooking() = println("View booking called\n")
 
-fun viewBookingsByMovie() = println("View booking by movie called")
+fun viewBookingsByMovie() = println("View booking by movie called\n")
 
-fun viewBookingsByDate() = println("View booking by date called")
+fun viewBookingsByDate() = println("View booking by date called\n")
 
 // Movies
 
-fun addMovie() = println("Add movie called")
+fun addMovie() = println("Add movie called\n")
 
-fun viewMovie() = println("View movie called")
+fun viewMovie() = println("View movie called\n")
 
-fun viewAllMovies() = println("View all movies called")
+fun viewAllMovies() = println("View all movies called\n")
 
-fun viewAllMoviesByCert() = println("View all movies by cert called")
+fun viewAllMoviesByCert() = println("View all movies by cert called\n")
 
 // Screenings
 
-fun addScreening() = println("Add screening called")
+fun addScreening() = println("Add screening called\n")
 
-fun deleteScreening() = println("Delete screening called")
+fun deleteScreening() = println("Delete screening called\n")
 
-fun deleteScreeningsByMovie() = println("Delete screenings by movie called")
+fun deleteScreeningsByMovie() = println("Delete screenings by movie called\n")
 
-fun deleteScreeningsByDate() = println("Delete screenings by date called")
+fun deleteScreeningsByDate() = println("Delete screenings by date called\n")
 
-fun updateScreenings() = println("Update screenings called")
+fun updateScreening() = println("Update screenings called\n")
 
-fun viewScreening() = println("View screening called")
+fun viewScreening() = println("View screening called\n")
 
-fun viewScreeningsByMovie() = println("View screening by movie called")
+fun viewScreeningsByMovie() = println("View screening by movie called\n")
 
-fun viewScreeningsByDate() = println("View screening by date called")
+fun viewScreeningsByDate() = println("View screening by date called\n")
 
 // Customers
 
-fun addCustomer() = println("Add customer called")
+fun addCustomer() = println("Add customer called\n")
 
-fun deleteCustomer() = println("Delete customer called")
+fun deleteCustomer() = println("Delete customer called\n")
 
-fun updateCustomer() = println("Update customer called")
+fun updateCustomer() = println("Update customer called\n")
 
-fun viewCustomer() = println("View customer called")
+fun viewCustomer() = println("View customer called\n")
 
-fun viewAllCustomers() = println("View all customers called")
+fun viewAllCustomers() = println("View all customers called\n")
 
-fun viewAllAdultCustomers() = println("View all adults customers called")
+fun viewAllAdultCustomers() = println("View all adults customers called\n")
 
-fun viewAllChildCustomers() = println("View all child customers called")
+fun viewAllChildCustomers() = println("View all child customers called\n")
 
 // Misc
 
-fun getUserOption() = readNextInt(">")
+fun getUserOption(): Int {
+    val userChoice = readNextInt(PROMPT)
+    println()
+    return userChoice
+}
