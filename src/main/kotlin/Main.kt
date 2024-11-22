@@ -1,3 +1,5 @@
+import controllers.MovieAPI
+import models.Movie
 import utils.*
 
 /*
@@ -6,6 +8,7 @@ import utils.*
  */
 
 private const val PROMPT = "> "
+private val movieAPI = MovieAPI()
 
 fun main() {
     runMenu()
@@ -47,9 +50,9 @@ fun moviesMenu() {
 
         when (option) {
             1 -> addMovie()
-            2 -> viewMovie()
-            3 -> viewAllMovies()
-            4 -> viewAllMoviesByCert()
+            2 -> getMovie()
+            3 -> listAllMovies()
+            4 -> listAllMoviesByCert()
         }
     } while(option != 0)
 }
@@ -106,13 +109,41 @@ fun viewBookingsByDate() = println("View booking by date called\n")
 
 // Movies
 
-fun addMovie() = println("Add movie called\n")
+fun addMovie() {
+    val title = readNextLine("Title: ")
+    val director = readNextLine("Director: ")
+    val runtime = readNextInt("Runtime: ")
+    val certification = readNextLine("Certification: ")
+    if( movieAPI.addMovie(Movie(title, director, runtime, certification)) ) print("Added")
+    else print("Not Added")
+    println()
+    println()
+}
 
-fun viewMovie() = println("View movie called\n")
+fun getMovie() {
+    listAllMovies()
+    val id = readNextInt("ID: ")
+    if( movieAPI.getMovie(id) != null ) print(movieAPI.getMovie(id))
+    else print("No movie found")
+    println()
+    println()
+}
 
-fun viewAllMovies() = println("View all movies called\n")
+fun listAllMovies(){
+    if( movieAPI.listAllMovies().isNotEmpty() ) movieAPI.listAllMovies().forEach{ println(it) }
+    else print("No movies found")
+    println()
+    println()
+}
 
-fun viewAllMoviesByCert() = println("View all movies by cert called\n")
+fun listAllMoviesByCert(){
+    val cert = readNextLine("Certification: ")
+    if( movieAPI.listMoviesByCertification(cert).isNotEmpty() )
+        movieAPI.listMoviesByCertification(cert).forEach{ println(it) }
+    else print("No movies found")
+    println()
+    println()
+}
 
 // Screenings
 

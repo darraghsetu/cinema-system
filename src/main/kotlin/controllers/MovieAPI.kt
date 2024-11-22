@@ -5,28 +5,25 @@ import models.Movie
 class MovieAPI {
 
     private var movies = ArrayList<Movie>()
+    private var currentID = 1000
 
     fun addMovie(movie: Movie): Boolean {
-        return false
+        movie.id = currentID++
+        return movies.add(movie)
     }
 
-    fun getMovie(id: Int): Movie? {
-        return null
-    }
+    fun getMovie(id: Int) = movies.find { it.id == id }
 
-    fun listAllMovies(): List<String> {
-        return listOf<String>()
-    }
+    fun listAllMovies() = movies.map{ it.toString() }.toList()
 
-    fun listMoviesByCertification(certification: String): List<String> {
-        return listOf<String>()
-    }
+    fun listMoviesByCertification(certification: String) =
+        movies
+            .filter { it.certification == certification }
+            .map{ it.toString() }
+            .toList()
 
-    fun numberOfMovies(): Int {
-        return -1
-    }
+    fun numberOfMovies() = movies.size
 
-    fun numberOfMoviesByCertification(certification: String): Int {
-        return -1
-    }
+    fun numberOfMoviesByCertification(certification: String) =
+        movies.count{ it.certification == certification }
 }

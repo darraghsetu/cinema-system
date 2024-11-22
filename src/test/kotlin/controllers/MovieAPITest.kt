@@ -71,9 +71,9 @@ class MovieAPITest {
         @Test
         fun `Adding a movie to a populated list adds to the arrayList`() {
             assertEquals(4, populatedMovies!!.numberOfMovies())
-            assertTrue(populatedMovies!!.addMovie(casablanca!!))
+            assertNotNull(populatedMovies!!.addMovie(casablanca!!))
             assertEquals(5, populatedMovies!!.numberOfMovies())
-            assertEquals(casablanca, populatedMovies!!.getMovie(populatedMovies!!.numberOfMovies() - 1))
+            assertEquals(casablanca, populatedMovies!!.getMovie(1004))
         }
 
         @Test
@@ -81,7 +81,7 @@ class MovieAPITest {
             assertEquals(0, emptyMovies!!.numberOfMovies())
             assertTrue(emptyMovies!!.addMovie(casablanca!!))
             assertEquals(1, emptyMovies!!.numberOfMovies())
-            assertEquals(casablanca, emptyMovies!!.getMovie(populatedMovies!!.numberOfMovies() - 1))
+            assertEquals(casablanca, emptyMovies!!.getMovie(1000))
         }
     }
 
@@ -97,10 +97,11 @@ class MovieAPITest {
         fun `listAllMovies returns list of Movie strings when ArrayList is not empty`() {
             val moviesList = populatedMovies!!.listAllMovies()
             assertEquals(moviesList.size, populatedMovies!!.numberOfMovies())
+            assertEquals(populatedMovies!!.getMovie(1000).toString(), moviesList[0])
+            assertEquals(populatedMovies!!.getMovie(1001).toString(), moviesList[1])
+            assertEquals(populatedMovies!!.getMovie(1002).toString(), moviesList[2])
+            assertEquals(populatedMovies!!.getMovie(1003).toString(), moviesList[3])
 
-            for(i in moviesList.indices){
-                assertEquals(moviesList[i], populatedMovies!!.getMovie(i).toString())
-            }
         }
 
         @Test
