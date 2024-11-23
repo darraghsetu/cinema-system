@@ -6,9 +6,10 @@ class MovieAPI {
 
     private var movies = ArrayList<Movie>()
     private var currentID = 1000
+    private fun getNextID() = currentID++
 
     fun addMovie(movie: Movie): Boolean {
-        movie.id = currentID++
+        movie.id = getNextID()
         return movies.add(movie)
     }
 

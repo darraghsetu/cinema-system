@@ -45,6 +45,25 @@ class MovieAPITest {
     }
 
     @Nested
+    inner class AddMovies {
+        @Test
+        fun `Adding a Movie to a populated list adds to the arrayList`() {
+            assertEquals(4, populatedMovies!!.numberOfMovies())
+            assertNotNull(populatedMovies!!.addMovie(casablanca!!))
+            assertEquals(5, populatedMovies!!.numberOfMovies())
+            assertEquals(casablanca, populatedMovies!!.getMovie(1004))
+        }
+
+        @Test
+        fun `Adding a Movie to an empty list adds to the ArrayList`() {
+            assertEquals(0, emptyMovies!!.numberOfMovies())
+            assertTrue(emptyMovies!!.addMovie(casablanca!!))
+            assertEquals(1, emptyMovies!!.numberOfMovies())
+            assertEquals(casablanca, emptyMovies!!.getMovie(1000))
+        }
+    }
+
+    @Nested
     inner class GetMovie {
         @Test
         fun `getMovie returns null when Movies ArrayList is empty`() {
@@ -67,30 +86,11 @@ class MovieAPITest {
     }
 
     @Nested
-    inner class AddMovies {
-        @Test
-        fun `Adding a movie to a populated list adds to the arrayList`() {
-            assertEquals(4, populatedMovies!!.numberOfMovies())
-            assertNotNull(populatedMovies!!.addMovie(casablanca!!))
-            assertEquals(5, populatedMovies!!.numberOfMovies())
-            assertEquals(casablanca, populatedMovies!!.getMovie(1004))
-        }
-
-        @Test
-        fun `Adding a movie to an empty list adds to the ArrayList`() {
-            assertEquals(0, emptyMovies!!.numberOfMovies())
-            assertTrue(emptyMovies!!.addMovie(casablanca!!))
-            assertEquals(1, emptyMovies!!.numberOfMovies())
-            assertEquals(casablanca, emptyMovies!!.getMovie(1000))
-        }
-    }
-
-    @Nested
     inner class ListMovies {
         @Test
         fun `listAllMovies returns empty string list when ArrayList is empty`() {
             assertEquals(0, emptyMovies!!.numberOfMovies())
-            assertEquals(listOf<String>(), emptyMovies!!.listAllMovies()) // mutable list of?
+            assertEquals(listOf<String>(), emptyMovies!!.listAllMovies())
         }
 
         @Test
@@ -117,7 +117,7 @@ class MovieAPITest {
         }
 
         @Test
-        fun `listMoviesByCertification returns list of Movie Strings when Movies of specified cert exist`() {
+        fun `listMoviesByCertification returns list of Movie strings when Movies of specified cert exist`() {
             populatedMovies!!.addMovie(casablanca!!)
             assertEquals(5, populatedMovies!!.numberOfMovies())
 
