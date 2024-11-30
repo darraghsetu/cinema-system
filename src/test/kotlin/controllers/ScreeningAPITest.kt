@@ -200,7 +200,7 @@ class ScreeningAPITest {
     }
 
     @Nested
-    inner class UpdateScreenings {
+    inner class UpdateScreening {
         @Test
         fun `updateScreening returns false if the ArrayList is empty`() {
             assertFalse(emptyScreenings!!.hasScreenings())
@@ -375,7 +375,7 @@ class ScreeningAPITest {
     }
 
     @Nested
-    inner class ListScreenings {
+    inner class ListingScreenings {
         @Test
         fun `listAllScreenings returns null if the ArrayList is empty`() {
             assertFalse(emptyScreenings!!.hasScreenings())

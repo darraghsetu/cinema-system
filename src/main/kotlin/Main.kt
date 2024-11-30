@@ -1,5 +1,7 @@
+import models.Customer
 import models.Movie
 import models.Screening
+import controllers.CustomerAPI
 import controllers.MovieAPI
 import controllers.ScreeningAPI
 import utils.ScannerInput as In

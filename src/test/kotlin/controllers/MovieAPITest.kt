@@ -43,7 +43,7 @@ class MovieAPITest {
     }
 
     @Nested
-    inner class AddMovies {
+    inner class AddMovie {
         @Test
         fun `addMovie returns true and adds Movie to an empty ArrayList`() {
             assertEquals(0, emptyMovies!!.numberOfMovies())
@@ -84,7 +84,7 @@ class MovieAPITest {
     }
 
     @Nested
-    inner class ListMovies {
+    inner class ListingMovies {
         @Test
         fun `listAllMovies returns null if the ArrayList is empty`() {
             assertEquals(0, emptyMovies!!.numberOfMovies())
