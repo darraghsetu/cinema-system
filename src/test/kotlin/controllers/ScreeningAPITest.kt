@@ -45,6 +45,8 @@ class ScreeningAPITest {
         movies.addMovie(Movie("Gladiator", "Ridley Scott", 155, "16"))
         movies.addMovie(Movie("Robocop", "Paul Verhoeven", 102, "18"))
         movies.addMovie(Movie("Casablanca", "Michael Curtiz", 102, "G"))
+
+        // Retrieved from API as the ID is set by addMovie
         paddington = movies.getMovie(1000)
         matrix = movies.getMovie(1001)
         gladiator = movies.getMovie(1002)
@@ -65,7 +67,7 @@ class ScreeningAPITest {
         paddingtonScreening2 = Screening(paddington!!, todayMiddayDateTimePlusTwoDays!!, 2)
         matrixScreening1 = Screening(matrix!!, todayMiddayDateTime!!, 1)
         matrixScreening2 = Screening(matrix!!, todayMiddayDateTimePlusOneDays!!.plusHours(3), 2)
-        robocopScreening1 = Screening(robocop!!, todayMiddayDateTimePlusTwoDays!!.plusHours(3), 3) // Used later, not added
+        robocopScreening1 = Screening(robocop!!, todayMiddayDateTimePlusTwoDays!!.plusHours(3), 3) // Not added
 
         populatedScreenings!!.addScreening(paddingtonScreening1!!)
         populatedScreenings!!.addScreening(paddingtonScreening2!!)
@@ -136,14 +138,14 @@ class ScreeningAPITest {
         }
 
         @Test
-        fun `getScreening returns null if specified Screening does not exist in the ArrayList`() {
+        fun `getScreening returns null if specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertFalse(populatedScreenings!!.screeningExists(9999))
             assertNull(populatedScreenings!!.getScreening(9999))
         }
 
         @Test
-        fun `getScreening returns Screening if specified Screening exists in the ArrayList`() {
+        fun `getScreening returns Screening if specified Screening ID exists in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertTrue(populatedScreenings!!.screeningExists(1000))
             assertNotNull(populatedScreenings!!.getScreening(1000))
@@ -208,7 +210,7 @@ class ScreeningAPITest {
         }
         
         @Test
-        fun `updateScreening returns false if specified Screening does not exist in the ArrayList`() {
+        fun `updateScreening returns false if specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertFalse(populatedScreenings!!.screeningExists(9999))
             assertFalse(populatedScreenings!!.updateScreening(9999, robocopScreening1!!))
@@ -243,14 +245,14 @@ class ScreeningAPITest {
         }
         
         @Test
-        fun `deleteScreening returns null if ArrayList does not contain Screening`() {
+        fun `deleteScreening returns null if the specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertFalse(populatedScreenings!!.screeningExists(9999))
             assertNull(populatedScreenings!!.deleteScreening(9999))
         }
         
         @Test
-        fun `deleteScreening deletes and returns Screening if specified Screening exists in the ArrayList`() {
+        fun `deleteScreening deletes and returns Screening if specified Screening ID exists in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertTrue(populatedScreenings!!.screeningExists(1000))
             assertNotNull(populatedScreenings!!.getScreening(1000))
@@ -258,8 +260,8 @@ class ScreeningAPITest {
             val countBefore = populatedScreenings!!.numberOfScreenings()
             val deletedScreening = populatedScreenings!!.deleteScreening(1000)
             val countAfter = populatedScreenings!!.numberOfScreenings()
-            assertEquals(countBefore - 1, countAfter)
 
+            assertEquals(countBefore - 1, countAfter)
             assertFalse(populatedScreenings!!.screeningExists(1000))
             assertNull(populatedScreenings!!.getScreening(1000))
             assertNotNull(deletedScreening)
@@ -340,7 +342,7 @@ class ScreeningAPITest {
         }
 
         @Test
-        fun `reserveSeat returns false if specified Screening does not exist in the ArrayList`() {
+        fun `reserveSeat returns false if specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertFalse(populatedScreenings!!.screeningExists(9999))
             assertFalse(populatedScreenings!!.reserveSeats(9999, listOf("A1", "A2")))

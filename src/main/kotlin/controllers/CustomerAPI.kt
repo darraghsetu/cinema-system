@@ -1,7 +1,7 @@
 package controllers
 
 import models.Customer
-import models.Screening
+import utils.Utilities as Utils
 import java.time.LocalDate
 import java.time.Period
 
@@ -11,7 +11,7 @@ class CustomerAPI() {
     private var currentID = 1000
 
     fun addCustomer(customer: Customer) =
-        if (isValidEmail(customer.email)) {
+        if (Utils.isValidEmail(customer.email)) {
             customer.customerID = getNextID()
             customers.add(customer)
         } else false
@@ -58,11 +58,11 @@ class CustomerAPI() {
         filterCustomers { it.lName == lName }
 
     fun listAllCustomersByAge(age: Int) =
-        filterCustomers { calculateCustomerAge(it.dob) == age }
+        filterCustomers { Utils.dateOfBirthToAge(it.dob) == age }
 
     fun listAllCustomersByAgeRange(lowerAgeInclusive: Int, upperAgeInclusive: Int) =
         filterCustomers {
-            calculateCustomerAge(it.dob) in lowerAgeInclusive..upperAgeInclusive
+            Utils.dateOfBirthToAge(it.dob) in lowerAgeInclusive..upperAgeInclusive
         }
 
     fun listAllAdultCustomers() =
@@ -101,9 +101,6 @@ class CustomerAPI() {
     fun hasCustomersByAgeRange(lowerAgeInclusive: Int, upperAgeInclusive: Int) =
         numberOfCustomersByAgeRange(lowerAgeInclusive, upperAgeInclusive) > 0
 
-    fun customerExists(id: Int) =
-        customers.find { it.customerID == id } != null
-
     private fun isAdult(customer: Customer) =
         if (customer.isAdult) true
         else {
@@ -113,24 +110,6 @@ class CustomerAPI() {
             customer.isAdult
         }
 
-    @Suppress("RegExpRedundantEscape")
-    private fun isValidEmail(email: String) =
-        /*
-         * NOT ORIGINAL WORK:
-         * This regular expression is not my own work,
-         * it was obtained from: https://www.emailregex.com/
-         */
-        Regex(
-            "(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+" +
-            ")*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7" +
-            "f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-" +
-            "z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0" +
-            "-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]" +
-            "?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1" +
-            "f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
-        )
-        .matches(email)
-
-    private fun calculateCustomerAge(dob: LocalDate) =
-        Period.between(dob, LocalDate.now()).years
+    fun customerExists(id: Int) =
+        customers.find { it.customerID == id } != null
 }

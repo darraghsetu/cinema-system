@@ -70,7 +70,7 @@ class MovieAPITest {
         }
 
         @Test
-        fun `getMovie returns null if no Movie with specified id exists in the ArrayList`() {
+        fun `getMovie returns null if no Movie with specified Movie ID exists in the ArrayList`() {
             assertEquals(4, populatedMovies!!.numberOfMovies())
             assertNull(populatedMovies!!.getMovie(9999))
         }
@@ -124,13 +124,13 @@ class MovieAPITest {
         }
 
         @Test
-        fun `listMoviesByCertification returns null if no Movies of specified cert exist in the ArrayList`() {
+        fun `listMoviesByCertification returns null if no Movies of specified certification exist in the ArrayList`() {
             assertEquals(4, populatedMovies!!.numberOfMovies())
             assertNull(populatedMovies!!.listMoviesByCertification("12A"))
         }
 
         @Test
-        fun `listMoviesByCertification returns list of Movie strings if Movies of specified cert exist`() {
+        fun `listMoviesByCertification returns list of Movie strings if Movies of specified certification exist`() {
             populatedMovies!!.addMovie(casablanca!!)
             assertEquals(5, populatedMovies!!.numberOfMovies())
 
