@@ -15,7 +15,7 @@ data class Booking(
     @Override
     override fun toString() =
         "(ID: $bookingID) " +
-        if(cancelled) "CANCELLED b" else "B" +
+        (if(cancelled) "CANCELLED b" else "B") +
         "ooking for ${customer.fName} ${customer.lName}. " +
         "${screening.movie.title} (${screening.movie.certification}) on " +
         "${screening.screeningDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))} at " +

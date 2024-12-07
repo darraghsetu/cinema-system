@@ -95,12 +95,10 @@ class ScreeningAPI {
         } else false
 
     private fun filterScreenings(predicate: (Screening) -> (Boolean)) =
-        if (hasScreenings())
-            screenings
-                .filter{ predicate(it) }
-                .map{ it.toString() }
-                .ifEmpty { null }
-        else null
+        screenings
+            .filter{ predicate(it) }
+            .map{ it.toString() }
+            .ifEmpty { null }
 
     fun listAllScreenings() =
         filterScreenings { true }

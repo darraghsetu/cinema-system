@@ -5,8 +5,7 @@ import utils.Utilities as Utils
 import java.time.LocalDate
 import java.time.Period
 
-class CustomerAPI() {
-
+class CustomerAPI {
     private val customers = ArrayList<Customer>()
     private var currentID = 1000
 
@@ -40,12 +39,10 @@ class CustomerAPI() {
         } else null
 
     private fun filterCustomers(predicate: (Customer) -> (Boolean)) =
-        if (hasCustomers())
-            customers
-                .filter{ predicate(it) }
-                .map{ it.toString() }
-                .ifEmpty { null }
-        else null
+        customers
+            .filter{ predicate(it) }
+            .map{ it.toString() }
+            .ifEmpty { null }
 
     fun listAllCustomers() =
         filterCustomers { true }

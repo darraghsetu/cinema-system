@@ -133,8 +133,8 @@ class BookingAPITest {
         @Test
         fun `addBooking returns true and adds Booking to a populated ArrayList`() {
             assertEquals(3, populatedBookings!!.numberOfBookings())
-            assertTrue(emptyBookings!!.addBooking(booking4!!))
-            assertEquals(4, emptyBookings!!.numberOfBookings())
+            assertTrue(populatedBookings!!.addBooking(booking4!!))
+            assertEquals(4, populatedBookings!!.numberOfBookings())
         }
     }
 
@@ -156,9 +156,9 @@ class BookingAPITest {
         @Test
         fun `cancelBooking returns true and cancels the Booking if the specified Booking ID exists in the ArrayList`() {
             assertTrue(populatedBookings!!.hasBookings())
-            assertEquals(false, emptyBookings!!.getBooking(1000)!!.cancelled)
-            assertTrue(emptyBookings!!.cancelBooking(1000))
-            assertEquals(true, emptyBookings!!.getBooking(1000)!!.cancelled)
+            assertEquals(false, populatedBookings!!.getBooking(1000)!!.cancelled)
+            assertTrue(populatedBookings!!.cancelBooking(1000))
+            assertEquals(true, populatedBookings!!.getBooking(1000)!!.cancelled)
         }
     }
 
@@ -195,8 +195,8 @@ class BookingAPITest {
         @Test
         fun `listAllBookings returns list of Booking strings if Bookings exist in the ArrayList`() {
             assertTrue(populatedBookings!!.hasBookings())
-            val bookingsList: List<String>? = populatedBookings!!.listAllBookings()
-            assertNotNull(bookingsList!!) // todo Can remove List<String>? when implemented
+            val bookingsList = populatedBookings!!.listAllBookings()
+            assertNotNull(bookingsList!!)
 
             booking1 = populatedBookings!!.getBooking(1000)
             booking2 = populatedBookings!!.getBooking(1001)
@@ -229,8 +229,8 @@ class BookingAPITest {
         @Test
         fun `listAllActiveBookings returns list of Booking strings if active Bookings exist in the ArrayList`() {
             assertTrue(populatedBookings!!.hasActiveBookings())
-            val bookingsList: List<String>? = populatedBookings!!.listAllActiveBookings()
-            assertNotNull(bookingsList!!) // todo Can remove List<String>? when implemented
+            val bookingsList = populatedBookings!!.listAllActiveBookings()
+            assertNotNull(bookingsList!!)
 
             booking1 = populatedBookings!!.getBooking(1000)
             booking2 = populatedBookings!!.getBooking(1001)
@@ -261,71 +261,71 @@ class BookingAPITest {
 
             populatedBookings!!.cancelBooking(1000)
             assertTrue(populatedBookings!!.hasCancelledBookings())
-            val bookingsList: List<String>? = populatedBookings!!.listAllCancelledBookings()
+            val bookingsList = populatedBookings!!.listAllCancelledBookings()
             booking1 = populatedBookings!!.getBooking(1000)
 
-            assertNotNull(bookingsList!!) // todo Can remove List<String>? when implemented
+            assertNotNull(bookingsList!!)
             assertEquals(1, bookingsList.size)
             assertEquals(booking1.toString(), bookingsList[0])
         }
 
         @Test
-        fun `listBookingsByCustomer returns null if the ArrayList is empty`() {
+        fun `listActiveBookingsByCustomer returns null if the ArrayList is empty`() {
             assertFalse(emptyBookings!!.hasBookings())
-            assertNull(emptyBookings!!.listBookingsByCustomer(1000))
+            assertNull(emptyBookings!!.listActiveBookingsByCustomer(1000))
         }
 
         @Test
-        fun `listBookingsByCustomer returns null if the specified Customer ID does not exist in the ArrayList`() {
+        fun `listActiveBookingsByCustomer returns null if the specified Customer ID does not exist in the ArrayList`() {
             assertTrue(populatedBookings!!.hasBookings())
-            assertNull(populatedBookings!!.listBookingsByCustomer(9999))
+            assertNull(populatedBookings!!.listActiveBookingsByCustomer(9999))
         }
 
         @Test
-        fun `listBookingsByCustomer returns list of Booking strings of Customer if specified Customer ID exists in the ArrayList`() {
+        fun `listActiveBookingsByCustomer returns list of Booking strings of Customer if specified Customer ID exists in the ArrayList`() {
             assertTrue(populatedBookings!!.hasBookings())
 
-            val bookingsList: List<String>? = populatedBookings!!.listBookingsByCustomer(1000) // todo Can remove List<String>? when implemented
+            val bookingsList = populatedBookings!!.listActiveBookingsByCustomer(1000)
             assertNotNull(bookingsList!!)
-            assertEquals(bookingsList[0], populatedBookings!!.getBooking(1000))
+            assertEquals(populatedBookings!!.getBooking(1000).toString(), bookingsList[0])
         }
 
         @Test
-        fun `listBookingsByScreening returns null if the ArrayList is empty`() {
+        fun `listActiveBookingsByScreening returns null if the ArrayList is empty`() {
             assertFalse(emptyBookings!!.hasBookings())
-            assertNull(emptyBookings!!.listBookingsByScreening(1000))
+            assertNull(emptyBookings!!.listActiveBookingsByScreening(1000))
         }
 
         @Test
-        fun `listBookingsByScreening returns null if the specified Screening ID does not exist in the ArrayList`() {
+        fun `listActiveBookingsByScreening returns null if the specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedBookings!!.hasBookings())
-            assertNull(populatedBookings!!.listBookingsByScreening(9999))
+            assertNull(populatedBookings!!.listActiveBookingsByScreening(9999))
         }
 
         @Test
-        fun `listBookingsByScreening returns list of Booking strings of Screening if specified Screening ID exists in the ArrayList`() {
+        fun `listActiveBookingsByScreening returns list of Booking strings of Screening if specified Screening ID exists in the ArrayList`() {
             assertTrue(populatedBookings!!.hasBookings())
-            val bookingsList: List<String>? = populatedBookings!!.listBookingsByScreening(1000) // todo Can remove List<String>? when implemented
+            val bookingsList = populatedBookings!!.listActiveBookingsByScreening(1000)
             assertNotNull(bookingsList!!)
             assertEquals(bookingsList[0], populatedBookings!!.getBooking(1000).toString())
         }
 
         @Test
-        fun `listBookingsByMovie returns null if the ArrayList is empty`() {
+        fun `listActiveBookingsByMovie returns null if the ArrayList is empty`() {
             assertFalse(emptyBookings!!.hasBookings())
-            assertNull(emptyBookings!!.listBookingsByMovie(1000))
+            assertNull(emptyBookings!!.listActiveBookingsByMovie(1000))
         }
 
         @Test
-        fun `listBookingsByMovie returns null if the specified Movie ID does not exist in the ArrayList`() {
+        fun `listActiveBookingsByMovie returns null if the specified Movie ID does not exist in the ArrayList`() {
             assertTrue(populatedBookings!!.hasBookings())
-            assertNull(populatedBookings!!.listBookingsByMovie(9999))
+            assertNull(populatedBookings!!.listActiveBookingsByMovie(9999))
         }
 
         @Test
-        fun `listBookingsByMovie returns list of Booking strings of Movie if specified Movie ID exists in the ArrayList`() {
+        fun `listActiveBookingsByMovie returns list of Booking strings of Movie if specified Movie ID exists in the ArrayList`() {
             assertTrue(populatedBookings!!.hasBookings())
-            val bookingsList: List<String>? = populatedBookings!!.listBookingsByMovie(1000) // todo Can remove List<String>? when implemented
+            val bookingsList = populatedBookings!!.listActiveBookingsByMovie(1000)
             assertNotNull(bookingsList!!)
             assertEquals(bookingsList[0], populatedBookings!!.getBooking(1000).toString())
             assertEquals(bookingsList[1], populatedBookings!!.getBooking(1001).toString())
@@ -351,14 +351,14 @@ class BookingAPITest {
             assertEquals(0, emptyBookings!!.numberOfActiveBookings())
             assertEquals(3, populatedBookings!!.numberOfActiveBookings())
             populatedBookings!!.cancelBooking(1000)
-            assertEquals(1, populatedBookings!!.numberOfActiveBookings())
+            assertEquals(2, populatedBookings!!.numberOfActiveBookings())
         }
 
         @Test
         fun numberOfCancelledBookingsCalculatedCorrectly() {
-            assertTrue(emptyBookings!!.hasBookings())
+            assertFalse(emptyBookings!!.hasBookings())
             assertEquals(0, emptyBookings!!.numberOfCancelledBookings())
-            emptyBookings!!.addBooking(booking1!!)
+            emptyBookings!!.addBooking(booking4!!)
             assertEquals(1, emptyBookings!!.numberOfBookings())
             assertEquals(0, emptyBookings!!.numberOfCancelledBookings())
             emptyBookings!!.cancelBooking(1000)
@@ -372,27 +372,27 @@ class BookingAPITest {
         }
 
         @Test
-        fun numberOfBookingsByCustomerCalculatedCorrectly() {
+        fun numberOfActiveBookingsByCustomerCalculatedCorrectly() {
             assertFalse(emptyBookings!!.hasBookings())
-            assertEquals(0, emptyBookings!!.numberOfBookingsByCustomer(1000))
+            assertEquals(0, emptyBookings!!.numberOfActiveBookingsByCustomer(1000))
             assertTrue(populatedBookings!!.hasBookings())
-            assertEquals(2, populatedBookings!!.numberOfBookingsByCustomer(1000))
+            assertEquals(1, populatedBookings!!.numberOfActiveBookingsByCustomer(1000))
         }
 
         @Test
-        fun numberOfBookingsByScreeningCalculatedCorrectly() {
+        fun numberOfActiveBookingsByScreeningCalculatedCorrectly() {
             assertFalse(emptyBookings!!.hasBookings())
-            assertEquals(0, emptyBookings!!.numberOfBookingsByScreening(1000))
+            assertEquals(0, emptyBookings!!.numberOfActiveBookingsByScreening(1000))
             assertTrue(populatedBookings!!.hasBookings())
-            assertEquals(1, populatedBookings!!.numberOfBookingsByScreening(1000))
+            assertEquals(1, populatedBookings!!.numberOfActiveBookingsByScreening(1000))
         }
 
         @Test
-        fun numberOfBookingsByMovieCalculatedCorrectly() {
+        fun numberOfActiveBookingsByMovieCalculatedCorrectly() {
             assertFalse(emptyBookings!!.hasBookings())
-            assertEquals(0, emptyBookings!!.numberOfBookingsByMovie(1000))
-            assertEquals(2, populatedBookings!!.numberOfBookingsByMovie(1000))
-            assertEquals(2, populatedBookings!!.numberOfBookingsByMovie(1001))
+            assertEquals(0, emptyBookings!!.numberOfActiveBookingsByMovie(1000))
+            assertEquals(2, populatedBookings!!.numberOfActiveBookingsByMovie(1000))
+            assertEquals(1, populatedBookings!!.numberOfActiveBookingsByMovie(1001))
         }
     }
 
@@ -411,10 +411,10 @@ class BookingAPITest {
         @Test
         fun totalCancelledSalesCalculatedCorrectly() {
             assertEquals(0.0, emptyBookings!!.totalCancelledSales())
-            emptyBookings!!.addBooking(booking1!!)
+            emptyBookings!!.addBooking(booking4!!)
             assertEquals(0.0, emptyBookings!!.totalCancelledSales())
             emptyBookings!!.cancelBooking(1000)
-            assertEquals(10.0, emptyBookings!!.totalCancelledSales())
+            assertEquals(19.5, emptyBookings!!.totalCancelledSales())
             assertEquals(0.0, populatedBookings!!.totalCancelledSales())
             populatedBookings!!.cancelBooking(1000)
             populatedBookings!!.cancelBooking(1001)
@@ -514,13 +514,13 @@ class BookingAPITest {
 
         @Test
         fun `hasCustomer returns false if the specified Customer ID does not exist in the ArrayList`() {
-            assertFalse(populatedBookings!!.hasBookings())
+            assertTrue(populatedBookings!!.hasBookings())
             assertFalse(populatedBookings!!.hasCustomer(9999))
         }
 
         @Test
         fun `hasCustomer returns true if the specified Customer ID exists in the ArrayList`() {
-            assertFalse(populatedBookings!!.hasBookings())
+            assertTrue(populatedBookings!!.hasBookings())
             assertTrue(populatedBookings!!.hasCustomer(1000))
             assertTrue(populatedBookings!!.hasCustomer(1001))
             assertTrue(populatedBookings!!.hasCustomer(1002))
@@ -534,13 +534,13 @@ class BookingAPITest {
 
         @Test
         fun `hasScreening returns false if the specified Screening ID does not exist in the ArrayList`() {
-            assertFalse(populatedBookings!!.hasBookings())
+            assertTrue(populatedBookings!!.hasBookings())
             assertFalse(populatedBookings!!.hasScreening(9999))
         }
 
         @Test
         fun `hasScreening returns true if the specified Screening ID exists in the ArrayList`() {
-            assertFalse(populatedBookings!!.hasBookings())
+            assertTrue(populatedBookings!!.hasBookings())
             assertTrue(populatedBookings!!.hasScreening(1000))
             assertTrue(populatedBookings!!.hasScreening(1001))
             assertTrue(populatedBookings!!.hasScreening(1002))

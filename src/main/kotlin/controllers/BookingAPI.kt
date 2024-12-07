@@ -7,61 +7,91 @@ class BookingAPI {
     private var currentID = 1000
 
     fun addBooking(booking: Booking): Boolean {
-        return true
+        booking.bookingID = getNextID()
+        return bookings.add(booking)
     }
 
-    fun cancelBooking(id: Int) = false
+    fun cancelBooking(id: Int) =
+        if (bookingExists(id)) {
+            getBooking(id)!!.cancelled = true
+            true
+        } else false
 
-    fun getBooking(id: Int): Booking? {
-        return null
-    }
+    fun getBooking(id: Int) =
+        bookings.find{ it.bookingID == id }
 
     private fun getNextID() =
         currentID++
 
-    private fun filterBookings(predicate: (Booking) -> (Boolean)) = false
+    private fun filterBookings(predicate: (Booking) -> (Boolean)) =
+        bookings
+            .filter{ predicate(it) }
+            .map{ it.toString() }
+            .ifEmpty { null }
 
-    fun listAllBookings() = null
+    fun listAllBookings() =
+        filterBookings{ true }
 
-    fun listAllActiveBookings() = null
+    fun listAllActiveBookings() =
+        filterBookings{ !it.cancelled }
 
-    fun listAllCancelledBookings() = null
+    fun listAllCancelledBookings() =
+        filterBookings{ it.cancelled }
 
-    fun listBookingsByCustomer(customerID: Int) = null
+    fun listActiveBookingsByCustomer(customerID: Int) =
+        filterBookings { it.customer.customerID == customerID && !it.cancelled }
 
-    fun listBookingsByScreening(screeningID: Int) = null
+    fun listActiveBookingsByScreening(screeningID: Int) =
+        filterBookings { it.screening.screeningID == screeningID && !it.cancelled }
 
-    fun listBookingsByMovie(movieID: Int) = null
+    fun listActiveBookingsByMovie(movieID: Int) =
+        filterBookings { it.screening.movie.movieID == movieID && !it.cancelled }
 
-    fun numberOfBookings() = 0
+    fun numberOfBookings() =
+        bookings.size
 
-    fun numberOfActiveBookings() = 0
+    fun numberOfActiveBookings() =
+        listAllActiveBookings()?.size ?: 0
 
-    fun numberOfCancelledBookings() = 0
+    fun numberOfCancelledBookings() =
+        listAllCancelledBookings()?.size ?: 0
 
-    fun numberOfBookingsByCustomer(customerID: Int) = 0
+    fun numberOfActiveBookingsByCustomer(customerID: Int) =
+        listActiveBookingsByCustomer(customerID)?.size ?: 0
 
-    fun numberOfBookingsByScreening(screeningID: Int) = 0
+    fun numberOfActiveBookingsByScreening(screeningID: Int) =
+        listActiveBookingsByScreening(screeningID)?.size ?: 0
 
-    fun numberOfBookingsByMovie(movieID: Int) = 0
+    fun numberOfActiveBookingsByMovie(movieID: Int) =
+        listActiveBookingsByMovie(movieID)?.size ?: 0
 
-    fun totalSales() = false
+    fun totalSales() =
+        bookings.filter{ !it.cancelled }.sumOf{ it.salePrice }
 
-    fun totalCancelledSales() = false
+    fun totalCancelledSales() =
+        bookings.filter{ it.cancelled }.sumOf{ it.salePrice }
 
-    fun totalSalesByScreening(screeningID: Int) = false
+    fun totalSalesByScreening(screeningID: Int) =
+        bookings.filter{ it.screening.screeningID == screeningID }.sumOf{ it.salePrice }
 
-    fun totalSalesByMovie(movieID: Int) = false
+    fun totalSalesByMovie(movieID: Int) =
+        bookings.filter{ it.screening.movie.movieID == movieID }.sumOf{ it.salePrice }
 
-    fun hasBookings() = false
+    fun hasBookings() =
+        numberOfBookings() > 0
 
-    fun hasActiveBookings() = false
+    fun hasActiveBookings() =
+        numberOfActiveBookings() > 0
 
-    fun hasCancelledBookings() = false
+    fun hasCancelledBookings() =
+        numberOfCancelledBookings() > 0
 
-    fun hasCustomer(customerID: Int) = false
+    fun hasCustomer(customerID: Int) =
+        numberOfActiveBookingsByCustomer(customerID) > 0
 
-    fun hasScreening(screeningID: Int) = false
+    fun hasScreening(screeningID: Int) =
+        numberOfActiveBookingsByScreening(screeningID) > 0
 
-    fun bookingExists(id: Int) = false
+    fun bookingExists(id: Int) =
+        bookings.any{ it.bookingID == id }
 }
