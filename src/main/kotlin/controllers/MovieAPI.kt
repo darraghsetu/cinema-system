@@ -33,14 +33,14 @@ class MovieAPI {
     fun numberOfMoviesByCertification(certification: String) =
         movies.count{ it.certification == certification }
 
-    fun movieExists(id: Int) =
-        movies.find{ it.movieID == id } != null
-
     fun hasMovies() =
         movies.size > 0
 
     fun hasCertificate(cert: String) =
         movies.count{ it.certification == cert } > 0
+
+    fun movieExists(id: Int) =
+        movies.find{ it.movieID == id } != null
 
     fun isValidCertificate(str: String) =
         certificateList.contains(str)

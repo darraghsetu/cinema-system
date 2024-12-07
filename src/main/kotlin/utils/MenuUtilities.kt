@@ -21,7 +21,7 @@ object MenuUtilities {
             | $optionLowerBound - ${menuOptions.last()}
             | ---
             | Please enter a number between $optionLowerBound and $optionUpperBound
-            | """.trimMargin()
+            |""".trimMargin()
         )
     }
 
@@ -73,7 +73,7 @@ object MenuUtilities {
                 "Add a screening",
                 "Delete a screening",
                 "Update a screening",
-                "View a screening",
+                "View screenings",
                 "Return to Main Menu",
             )
         )
@@ -86,10 +86,7 @@ object MenuUtilities {
                 "Add a customer",
                 "Delete a customer",
                 "Update a customer",
-                "View a customer",
-                "View all customers",
-                "View all adult customers",
-                "View all child customers",
+                "View customers",
                 "Return to Main Menu",
             )
         )
@@ -105,9 +102,9 @@ object MenuUtilities {
         )
 
     @JvmStatic
-    fun printDeleteScreeningMenu() =
+    fun printDeleteScreeningsMenu() =
         printMenu(
-            "Delete Screening Menu",
+            "Delete Screenings Menu",
             listOf(
                 "Delete a screening",
                 "Delete a screening by movie",
@@ -127,14 +124,14 @@ object MenuUtilities {
                 "Update screening's date and time",
                 "Update screening's theatre",
                 "Update all details for screening",
-                "Return to Screenings Menu"
+                "Return to Screenings Menu",
             )
         )
 
     @JvmStatic
-    fun printViewScreeningMenu() =
+    fun printViewScreeningsMenu() =
         printMenu(
-            "View Screening Menu",
+            "View Screenings Menu",
             listOf(
                 "View all screenings",
                 "View screenings by movie",
@@ -145,6 +142,36 @@ object MenuUtilities {
                 "View this week's remaining screenings",
                 "View this week's remaining screenings by movie",
                 "Return to Screenings Menu",
+            )
+        )
+
+    @JvmStatic
+    fun printUpdateCustomerMenu() =
+        printMenu(
+            "Update Customer Menu",
+            listOf(
+                "Update customer's first name",
+                "Update customer's last name",
+                "Update customer's email",
+                "Update customer's date of birth",
+                "Update all details for customer",
+                "Return to Customers Menu",
+            )
+        )
+
+    @JvmStatic
+    fun printViewCustomersMenu() =
+        printMenu(
+            "View Customers Menu",
+            listOf(
+                "View all customers",
+                "View all customers by first name",
+                "View all customers by last name",
+                "View all customers by age",
+                "View all customers by age range",
+                "View all adult customers",
+                "View all child customers",
+                "Returns to Customers Menu",
             )
         )
 }

@@ -33,12 +33,11 @@ class ScreeningAPI {
             ),
         )
 
-    fun addScreening(screening: Screening) =
-        if (theatreExists(screening.theatreID)) {
-            screening.screeningID = getNextID()
-            screening.seats = getSeats(screening.theatreID)
-            screenings.add(screening)
-        } else false
+    fun addScreening(screening: Screening): Boolean {
+        screening.screeningID = getNextID()
+        screening.seats = getSeats(screening.theatreID)
+        return screenings.add(screening)
+    }
     
     fun getScreening(id: Int) =
         screenings.find { it.screeningID == id }
