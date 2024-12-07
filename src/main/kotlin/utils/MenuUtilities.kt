@@ -1,7 +1,7 @@
 package utils
 
 object MenuUtilities {
-
+    const val FIVE = "five"
     private fun printMenu(heading: String, menuOptions: List<String>) {
         val optionLowerBound = 0
         val optionUpperBound = menuOptions.size - 1
