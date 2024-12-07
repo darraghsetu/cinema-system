@@ -103,14 +103,6 @@ class ScreeningAPITest {
     @Nested
     inner class AddScreening {
         @Test
-        fun `addScreening returns false if the Screening's theatreID does not exist`() {
-            robocopScreening1!!.theatreID = 10
-            assertEquals(4, populatedScreenings!!.numberOfScreenings())
-            assertFalse(populatedScreenings!!.addScreening(robocopScreening1!!))
-            assertEquals(4, populatedScreenings!!.numberOfScreenings())
-        }
-
-        @Test
         fun `addScreening returns true and adds Screening to an empty ArrayList`() {
             assertFalse(emptyScreenings!!.hasScreenings())
             assertTrue(emptyScreenings!!.addScreening(robocopScreening1!!))

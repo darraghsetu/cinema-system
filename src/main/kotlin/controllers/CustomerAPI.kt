@@ -10,11 +10,10 @@ class CustomerAPI() {
     private val customers = ArrayList<Customer>()
     private var currentID = 1000
 
-    fun addCustomer(customer: Customer) =
-        if (Utils.isValidEmail(customer.email)) {
-            customer.customerID = getNextID()
-            customers.add(customer)
-        } else false
+    fun addCustomer(customer: Customer): Boolean {
+        customer.customerID = getNextID()
+        return customers.add(customer)
+    }
 
     fun getCustomer(id: Int) =
         customers.find { it.customerID == id }
@@ -58,11 +57,11 @@ class CustomerAPI() {
         filterCustomers { it.lName == lName }
 
     fun listAllCustomersByAge(age: Int) =
-        filterCustomers { Utils.dateOfBirthToAge(it.dob) == age }
+        filterCustomers { Utils.dateToYears(it.dob) == age }
 
     fun listAllCustomersByAgeRange(lowerAgeInclusive: Int, upperAgeInclusive: Int) =
         filterCustomers {
-            Utils.dateOfBirthToAge(it.dob) in lowerAgeInclusive..upperAgeInclusive
+            Utils.dateToYears(it.dob) in lowerAgeInclusive..upperAgeInclusive
         }
 
     fun listAllAdultCustomers() =

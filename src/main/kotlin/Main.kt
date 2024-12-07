@@ -6,17 +6,27 @@ import controllers.MovieAPI
 import controllers.ScreeningAPI
 import utils.ScannerInput as In
 import utils.MenuUtilities as Menu
+import utils.Utilities as Utils
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 
-private const val PROMPT = "> "
+// todo when finished: check all files for x(), ){, "x" not " x", "x:" not "x: ", empty lines
+// todo refactor: I think the updates / deletes with multiple options could be made back into one function for each
+
+private const val PROMPT = " > "
+private const val datePattern = "dd/MM/yyyy"
+private const val timePattern = "HH:mm"
+private val datePrompt = " Date (${datePattern.lowercase()}): "
+private val timePrompt = " Time (24 hour format - ${timePattern.lowercase()}): "
+private val dateFormatter = DateTimeFormatter.ofPattern(datePattern)
+private val dateTimeFormatter = DateTimeFormatter.ofPattern("$datePattern $timePattern")
 //private lateinit var movieAPI: MovieAPI
 //private lateinit var screeningAPI: ScreeningAPI
 private val movieAPI = MovieAPI()
 private val screeningAPI = ScreeningAPI()
+private val customerAPI = CustomerAPI()
 
 fun main() {
     // initControllersWithSerializer()
@@ -43,6 +53,10 @@ fun dummyData() {
     screeningAPI.addScreening(paddingtonScreening2)
     screeningAPI.addScreening(matrixScreening1)
     screeningAPI.addScreening(matrixScreening2)
+
+    customerAPI.addCustomer(Customer("Aoife", "Ayy", "aoife@gmail.com", LocalDate.now().minusYears(24)))
+    customerAPI.addCustomer(Customer("Brendan", "Bee", "brendan@gmail.com", LocalDate.now().minusYears(18)))
+    customerAPI.addCustomer(Customer("Cillian", "Cee", "cillian@gmail.com", LocalDate.now().minusYears(16)))
 }
 
 fun runMenu(menuPrinter: () -> (Unit), options: List<() -> (Unit)>) {
@@ -56,7 +70,7 @@ fun runMenu(menuPrinter: () -> (Unit), options: List<() -> (Unit)>) {
             println(" Invalid option, please try again")
             println()
         }
-    } while(option != 0)
+    } while (option != 0)
 }
 
 fun mainMenu() =
@@ -67,7 +81,7 @@ fun mainMenu() =
             ::moviesMenu,
             ::screeningsMenu,
             ::customersMenu,
-            ::reportsMenu
+            ::reportsMenu,
         )
     )
 
@@ -100,7 +114,7 @@ fun screeningsMenu() =
             ::addScreening,
             ::deleteScreeningMenu,
             ::updateScreeningMenu,
-            ::viewScreeningMenu,
+            ::viewScreeningsMenu,
         )
     )
 
@@ -110,11 +124,8 @@ fun customersMenu() =
         listOf(
             ::addCustomer,
             ::deleteCustomer,
-            ::updateCustomer,
-            ::viewCustomer,
-            ::listAllCustomers,
-            ::listAllAdultCustomers,
-            ::listAllChildCustomers,
+            ::updateCustomerMenu,
+            ::viewCustomersMenu,
         )
     )
 
@@ -124,7 +135,7 @@ fun reportsMenu() =
 fun deleteScreeningMenu() =
     if (screeningAPI.hasScreenings()) {
         runMenu(
-            Menu::printDeleteScreeningMenu,
+            Menu::printDeleteScreeningsMenu,
             listOf(
                 ::deleteScreening,
                 ::deleteScreeningByMovie,
@@ -148,10 +159,10 @@ fun updateScreeningMenu() =
         )
     } else println(" No screenings found")
 
-fun viewScreeningMenu() =
+fun viewScreeningsMenu() =
     if (screeningAPI.hasScreenings()) {
         runMenu(
-            Menu::printViewScreeningMenu,
+            Menu::printViewScreeningsMenu,
             listOf(
                 ::listAllScreenings,
                 ::listScreeningsByMovie,
@@ -164,6 +175,36 @@ fun viewScreeningMenu() =
             )
         )
     } else println(" No screenings found")
+
+fun updateCustomerMenu() =
+    if (customerAPI.hasCustomers()) {
+        runMenu(
+            Menu::printUpdateCustomerMenu,
+            listOf(
+                ::updateCustomerFName,
+                ::updateCustomerLName,
+                ::updateCustomerEmail,
+                ::updateCustomerDOB,
+                ::updateCustomer,
+            )
+        )
+    } else println(" No customers found")
+
+fun viewCustomersMenu() =
+    if (customerAPI.hasCustomers()) {
+        runMenu(
+            Menu::printViewCustomersMenu,
+            listOf(
+                ::listAllCustomers,
+                ::listAllCustomersByFirstName,
+                ::listAllCustomersByLastName,
+                ::listAllCustomersByAge,
+                ::listAllCustomersByAgeRange,
+                ::listAllAdultCustomers,
+                ::listAllChildCustomers,
+            )
+        )
+    } else println(" No customers found")
 
 // Bookings
 
@@ -181,12 +222,14 @@ fun addMovie() {
     val title = In.readNextLine(" Title: ")
     val director = In.readNextLine(" Director: ")
     val runtime = In.readNextInt(" Runtime: ")
-    var certification: String
-    do{
+    var certification = ""
+    var validCert = false
+    while (!validCert) {
         certification = In.readNextLine(" Certification: ")
-        if (! movieAPI.isValidCertificate(certification))
+        validCert = movieAPI.isValidCertificate(certification)
+        if (!validCert)
             println(" Certification must be: G, PG, 12A, 15A, 16 or 18")
-    } while (! movieAPI.isValidCertificate(certification))
+    }
     if (movieAPI.addMovie(Movie(title, director, runtime, certification)))
         println(" Movie has been successfully added")
     else println(" Movie has not been added")
@@ -194,14 +237,13 @@ fun addMovie() {
 
 fun viewMovie() =
     if (movieAPI.hasMovies()) {
-        movieAPI.listAllTitles()!!.forEach { println(it) }
-        println()
+        Utils.printStringList(movieAPI.listAllTitles()!!)
         val movieID = In.readNextInt(" ID: ")
         println(movieAPI.getMovie(movieID) ?: " No movie found for ID: $movieID")
     } else println(" No movies found")
 
 fun listAllMovies() =
-    if (movieAPI.hasMovies()) movieAPI.listAllMovies()!!.forEach{ println(it) }
+    if (movieAPI.hasMovies()) Utils.printStringList(movieAPI.listAllMovies()!!)
     else println(" No movies found")
 
 fun listAllMoviesByCert() =
@@ -216,389 +258,463 @@ fun listAllMoviesByCert() =
 
 fun addScreening() =
     if (movieAPI.hasMovies()) {
-        movieAPI.listAllTitles()!!.forEach { println(it) }
-        println()
+        Utils.printStringList(movieAPI.listAllTitles()!!)
         val movieID = In.readNextInt(" Movie ID: ")
         val movie: Movie? = movieAPI.getMovie(movieID)
         if (movie != null) {
             val theatreID = In.readNextInt(" Theatre Number(1-3): ")
             if (screeningAPI.theatreExists(theatreID)) {
-                val date = In.readNextLine(" Date (dd/mm/yyyy): ")
-                val time = In.readNextLine(" Time (24 hour format - hh:mm): ")
-                try {
-                    val dateTime = LocalDateTime.parse(
-                        "$date $time",
-                        DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-                    )
-                    if (screeningAPI.availableDateTime(dateTime, movie.runtime, theatreID)) {
-                        if (screeningAPI.addScreening(Screening(movie, dateTime, theatreID))) {
-                            println(" Screening has been successfully added")
-                        } else println(" Screening has not been added")
-                    } else println(" Theatre $theatreID not available for screening on that date and time")
-                } catch (d: DateTimeParseException) {
-                    println(" Invalid date or time entered")
-                }
+                val date = Utils.getValidDate(datePrompt, datePattern)
+                val time = Utils.getValidTime(timePrompt, timePattern)
+                val dateTime = LocalDateTime.of(date, time)
+
+                if (screeningAPI.availableDateTime(dateTime, movie.runtime, theatreID)) {
+                    if (screeningAPI.addScreening(Screening(movie, dateTime, theatreID))) {
+                        println(" Screening has been successfully added")
+                    } else println(" Screening has not been added")
+                } else println(" Theatre $theatreID is not available for screening at that date and time")
             } else println(" Theatre $theatreID does not exist")
         } else println(" No movie found for ID: $movieID")
     } else println(" No movies to screen")
 
 fun deleteScreening() =
     if (screeningAPI.hasScreenings()) {
-        screeningAPI.listAllScreenings()!!.forEach { println(it) }
-        println()
-        if (
-            screeningAPI
-                .deleteScreening(
-                    In.readNextInt(" Screening ID: ")
-                ) != null
-        ) println(" Screening has been successfully deleted")
-        else println(" Screening has not been deleted")
+        Utils.printStringList(screeningAPI.listAllScreenings()!!)
+        val screening = screeningAPI.deleteScreening(In.readNextInt(" Screening ID: "))
+        if (screening != null) {
+            println(" Screening has been successfully deleted:")
+            println(" $screening")
+        } else println(" Screening has not been deleted")
     } else println(" No screenings found")
 
 fun deleteScreeningByMovie() =
-    if (screeningAPI.hasScreenings()) {
-        if (movieAPI.hasMovies()) {
-            movieAPI.listAllTitles()!!.forEach { println(it) }
-            println()
-            val movieID = In.readNextInt(" Movie ID: ")
-            if (movieAPI.movieExists(movieID)) {
-                if (screeningAPI.hasScreeningsByMovie(movieID)) {
-                    screeningAPI.listScreeningsByMovie(movieID)!!.forEach { println(it) }
-                    println()
-                    val screeningID = In.readNextInt(" Screening ID: ")
-                    if (screeningAPI.screeningExists(screeningID)) {
-                        if (screeningAPI.getScreening(screeningID)!!.movie.movieID == movieID) {
-                            if (screeningAPI.deleteScreening(screeningID) != null) {
-                                println(" Screening has been successfully deleted")
-                            } else println(" Screening has not been deleted")
-                        } else println(
-                            " Invalid screening ID: $screeningID for ${movieAPI.getMovie(movieID)!!.title}"
-                        )
-                    } else println(" No screening found for ID: $screeningID")
-                } else println(
-                    " No screenings found for ${movieAPI.getMovie(movieID)?.title}"
-                )
-            } else println(" No movies found for ID: $movieID")
-        } else println(" No movies found")
-    } else println(" No screenings found")
-
-fun deleteScreeningByDate() =
-    if (screeningAPI.hasScreenings()) {
-        try {
-            val date = LocalDate.parse(
-                In.readNextLine(" Date (dd/mm/yyyy): "),
-                DateTimeFormatter.ofPattern("dd/MM/yyyy")
-            )
-            if (screeningAPI.hasScreeningsByDate(date)) {
-                screeningAPI.listScreeningsByDate(date)!!.forEach { println(it) }
-                println()
+    if (movieAPI.hasMovies()) {
+        Utils.printStringList(movieAPI.listAllTitles()!!)
+        val movieID = In.readNextInt(" Movie ID: ")
+        if (movieAPI.movieExists(movieID)) {
+            if (screeningAPI.hasScreeningsByMovie(movieID)) {
+                Utils.printStringList(screeningAPI.listScreeningsByMovie(movieID)!!)
                 val screeningID = In.readNextInt(" Screening ID: ")
-                if ( screeningAPI.screeningExists(screeningID)) {
-                    if (screeningAPI.getScreening(screeningID)!!.screeningDateTime.toLocalDate() == date) {
+                if (screeningAPI.screeningExists(screeningID)) {
+                    val screening = screeningAPI.getScreening(screeningID)!!
+                    if (screening.movie.movieID == movieID) {
                         if (screeningAPI.deleteScreening(screeningID) != null) {
-                            println(" Screening has been successfully deleted")
+                            println(" Screening has been successfully deleted:")
+                            println(" $screening")
                         } else println(" Screening has not been deleted")
                     } else println(
-                        " Invalid screening ID: $screeningID for " +
-                        date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        " Invalid screening ID: $screeningID for ${screening.movie.title}"
                     )
                 } else println(" No screening found for ID: $screeningID")
             } else println(
-                " No screenings found for ${date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}"
+                " No screenings found for ${movieAPI.getMovie(movieID)!!.title}"
             )
-        } catch (d: DateTimeParseException) {
-            println(" Invalid date entered")
-        }
+        } else println(" No movie found for ID: $movieID")
+    } else println(" No movies found")
+
+fun deleteScreeningByDate() =
+    if (screeningAPI.hasScreenings()) {
+        val date = Utils.getValidDate(datePrompt, datePattern)
+        if (screeningAPI.hasScreeningsByDate(date)) {
+            Utils.printStringList(screeningAPI.listScreeningsByDate(date)!!)
+            val screeningID = In.readNextInt(" Screening ID: ")
+            if (screeningAPI.screeningExists(screeningID)) {
+                val screening = screeningAPI.getScreening(screeningID)!!
+                if (screening.screeningDateTime.toLocalDate() == date) {
+                    if (screeningAPI.deleteScreening(screeningID) != null) {
+                        println(" Screening has been successfully deleted:")
+                        println(" $screening")
+                    } else println(" Screening has not been deleted")
+                } else println(
+                    " Invalid screening ID: $screeningID for " +
+                    date.format(dateFormatter),
+                )
+            } else println(" No screening found for ID: $screeningID")
+        } else println(
+            " No screenings found for ${date.format(dateFormatter)}"
+        )
     } else println(" No screenings found")
 
 fun deleteAllScreeningsByMovie() =
-    if (screeningAPI.hasScreenings()){
-        if (movieAPI.hasMovies()) {
-            movieAPI.listAllTitles()!!.forEach { println(it) }
-            println()
-            val movieID = In.readNextInt(" Movie ID: ")
-            if (movieAPI.movieExists(movieID)) {
-                if (screeningAPI.hasScreeningsByMovie(movieID)) {
-                    if (screeningAPI.deleteScreeningsByMovie(movieID) != null) {
-                        println(" Screenings for ${movieAPI.getMovie(movieID)!!.title} have been deleted")
-                    } else println(" Screenings have not been deleted")
-                } else println(" No screenings found for ${movieAPI.getMovie(movieID)!!.title}")
-            } else println(" No movies found for ID: $movieID")
-        } else println(" No movies found")
-    } else println(" No screenings found")
+    if (movieAPI.hasMovies()) {
+        Utils.printStringList(movieAPI.listAllTitles()!!)
+        val movieID = In.readNextInt(" Movie ID: ")
+        if (movieAPI.movieExists(movieID)) {
+            if (screeningAPI.hasScreeningsByMovie(movieID)) {
+                val numberOfScreenings = screeningAPI.numberOfScreeningsByMovie(movieID)
+                if (screeningAPI.deleteScreeningsByMovie(movieID) != null) {
+                    println(" $numberOfScreenings screenings for ${movieAPI.getMovie(movieID)!!.title} have been deleted")
+                } else println(" Screenings have not been deleted")
+            } else println(" No screenings found for ${movieAPI.getMovie(movieID)!!.title}")
+        } else println(" No movie found for ID: $movieID")
+    } else println(" No movies found")
 
 fun deleteAllScreeningsByDate() =
     if (screeningAPI.hasScreenings()) {
-        try {
-            val date = LocalDate.parse(
-                In.readNextLine(" Date (dd/mm/yyyy): "),
-                DateTimeFormatter.ofPattern("dd/MM/yyyy")
-            )
+            val date = Utils.getValidDate(datePattern, datePattern)
             if (screeningAPI.hasScreeningsByDate(date)) {
+                val numberOfScreenings = screeningAPI.numberOfScreeningsByDate(date)
                 if (screeningAPI.deleteScreeningsByDate(date) != null) {
-                    println(" Screenings on ${date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))} " +
+                    println(" $numberOfScreenings screenings on ${date.format(dateFormatter)} " +
                             " have been successfully deleted"
                     )
                 } else println(" Screenings have not been deleted")
             } else println(
-                " No screenings found for ${date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}"
+                " No screenings found for ${date.format(dateFormatter)}"
             )
-        } catch (d: DateTimeParseException) {
-            println(" Invalid date entered")
-        }
     } else println(" No screenings found")
 
 fun updateScreening() =
     if (screeningAPI.hasScreenings()) {
-        screeningAPI.listAllScreenings()!!.forEach { print(it) }
-        println()
+        Utils.printStringList(screeningAPI.listAllScreenings()!!)
         val screeningID = In.readNextInt(" Screening ID to update: ")
-        println()
         if (screeningAPI.screeningExists(screeningID)) {
-            if (movieAPI.hasMovies()) {
-                movieAPI.listAllTitles()!!.forEach { println(it) }
-                println()
-                val movieID = In.readNextInt(" New Movie ID: ")
-                val movie = movieAPI.getMovie(movieID)
-                if (movie != null) {
-                    val theatreID = In.readNextInt(" New Theatre ID: ")
-                    if (screeningAPI.theatreExists(theatreID)) {
-                        try {
-                            val date = LocalDate.parse(
-                                In.readNextLine(" New date (dd/mm/yyyy): "),
-                                DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                            )
-                            val time = LocalTime.parse(
-                                In.readNextLine(" New time (24 hour format - hh:mm): "),
-                                DateTimeFormatter.ofPattern("HH:mm")
-                            )
-                            val screeningDatetime = LocalDateTime.of(date, time)
-                            if (screeningAPI.availableDateTime(screeningDatetime, movie.runtime, theatreID)) {
-                                val newScreening = Screening(movie, screeningDatetime, theatreID)
-                                if (screeningAPI.updateScreening(screeningID, newScreening)) {
-                                    println(" Screening has been successfully updated:")
-                                    println(screeningAPI.getScreening(screeningID))
-                                } else println(" Screening has not been updated")
-                            } else println(" Theatre $theatreID not available for screening on that date and time")
-                        } catch (d: DateTimeParseException) {
-                            println(" Invalid date entered")
-                        }
-                    } else println(" Invalid theatre ID: $theatreID")
-                } else println(" No movie found for ID: $movieID")
-            } else println(" No movies found")
-        } else println(" No screenings found for ID: $screeningID")
+            Utils.printStringList(movieAPI.listAllTitles()!!)
+            val movieID = In.readNextInt(" New movie ID: ")
+            val movie = movieAPI.getMovie(movieID)
+            if (movie != null) {
+                val theatreID = In.readNextInt(" New theatre ID: ")
+                if (screeningAPI.theatreExists(theatreID)) {
+                    val date = Utils.getValidDate(datePrompt, datePattern)
+                    val time = Utils.getValidTime(timePrompt, timePattern)
+                    val screeningDatetime = LocalDateTime.of(date, time)
+                    if (screeningAPI.availableDateTime(screeningDatetime, movie.runtime, theatreID)) {
+                        val newScreening = Screening(movie, screeningDatetime, theatreID)
+                        if (screeningAPI.updateScreening(screeningID, newScreening)) {
+                            println(" Screening has been successfully updated:")
+                            println(" ${screeningAPI.getScreening(screeningID)}")
+                        } else println(" Screening has not been updated")
+                    } else println(
+                        " Theatre $theatreID is not available on " +
+                        screeningDatetime.format(dateTimeFormatter)
+                    )
+                } else println(" No theatre found for ID: $theatreID")
+            } else println(" No movie found for ID: $movieID")
+        } else println(" No screening found for ID: $screeningID")
     } else println(" No screenings found")
 
 fun updateScreeningMovie() {
     if (screeningAPI.hasScreenings()) {
-        screeningAPI.listAllScreenings()!!.forEach { print(it) }
-        println()
+        Utils.printStringList(screeningAPI.listAllScreenings()!!)
         val screeningID = In.readNextInt(" Screening ID to update: ")
-        println()
         if (screeningAPI.screeningExists(screeningID)) {
             val screening = screeningAPI.getScreening(screeningID)!!
-            if (movieAPI.hasMovies()) {
-                movieAPI.listAllTitles()!!.forEach { println(it) }
-                println()
-                val movieID = In.readNextInt(" New Movie ID: ")
-                val movie = movieAPI.getMovie(movieID)
-                if (movie != null) {
-                    val newScreening = Screening(movie, screening.screeningDateTime, screening.theatreID)
-                    if (screeningAPI.updateScreening(screeningID, newScreening)) {
-                        println(" Screening has been successfully updated:")
-                        println(screeningAPI.getScreening(screeningID))
-                    } else println(" Screening has been not been updated")
-                } else println(" No movie found for ID: $movieID")
-            } else println(" No movies found")
+            Utils.printStringList(movieAPI.listAllTitles()!!)
+            val movieID = In.readNextInt(" New Movie ID: ")
+            val movie = movieAPI.getMovie(movieID)
+            if (movie != null) {
+                val newScreening = screening.copy(movie = movie)
+                if (screeningAPI.updateScreening(screeningID, newScreening)) {
+                    println(" Screening has been successfully updated:")
+                    println(" ${screeningAPI.getScreening(screeningID)}")
+                } else println(" Screening has not been updated")
+            } else println(" No movie found for ID: $movieID")
         } else println(" No screening found for ID: $screeningID")
     } else println(" No screenings found")
 }
 
 fun updateScreeningDateTime() {
     if (screeningAPI.hasScreenings()) {
-        screeningAPI.listAllScreenings()!!.forEach { print(it) }
-        println()
+        Utils.printStringList(screeningAPI.listAllScreenings()!!)
         val screeningID = In.readNextInt(" Screening ID to update: ")
-        println()
         if (screeningAPI.screeningExists(screeningID)) {
             val screening = screeningAPI.getScreening(screeningID)!!
-            try {
-                val date = LocalDate.parse(
-                    In.readNextLine(" New date (dd/mm/yyyy): "),
-                    DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                )
-                val time = LocalTime.parse(
-                    In.readNextLine(" New time (24 hour format - hh:mm): "),
-                    DateTimeFormatter.ofPattern("HH:mm")
-                )
-                val screeningDatetime = LocalDateTime.of(date, time)
-                if (screeningAPI.availableDateTime(screeningDatetime, screening.movie.runtime, screening.theatreID)) {
-                    val newScreening = Screening(screening.movie, screeningDatetime, screening.theatreID)
-                    if (screeningAPI.updateScreening(screeningID, newScreening)) {
-                        println(" Screening has been successfully updated:")
-                        println(screeningAPI.getScreening(screeningID))
-                    } else println(" Screening has not been updated")
-                } else println(" Theatre ${screening.theatreID} not available for screening on that date and time")
-            } catch (d: DateTimeParseException) {
-                println(" Invalid date entered")
-            }
+            val date = Utils.getValidDate("New ${datePrompt.lowercase()}", datePattern)
+            val time = Utils.getValidTime("New ${timePrompt.lowercase()}", timePattern)
+            val screeningDatetime = LocalDateTime.of(date, time)
+            if (screeningAPI.availableDateTime(screeningDatetime, screening.movie.runtime, screening.theatreID)) {
+                val newScreening = screening.copy(screeningDateTime = screeningDatetime)
+                if (screeningAPI.updateScreening(screeningID, newScreening)) {
+                    println(" Screening has been successfully updated:")
+                    println(" ${screeningAPI.getScreening(screeningID)}")
+                } else println(" Screening has not been updated")
+            } else println(" Theatre ${screening.theatreID} is not available for screening on " +
+                    screeningDatetime.format(dateTimeFormatter)
+            )
         } else println(" No screening found for ID: $screeningID")
     } else println(" No screenings found")
 }
 
 fun updateScreeningTheatre() {
     if (screeningAPI.hasScreenings()) {
-        screeningAPI.listAllScreenings()!!.forEach { print(it) }
-        println()
+        Utils.printStringList(screeningAPI.listAllScreenings()!!)
         val screeningID = In.readNextInt(" Screening ID to update: ")
-        println()
         if (screeningAPI.screeningExists(screeningID)) {
             val screening = screeningAPI.getScreening(screeningID)!!
-            val theatreID = In.readNextInt(" New Theatre ID: ")
-            println()
+            val theatreID = In.readNextInt(" New theatre ID: ")
             if (screeningAPI.theatreExists(theatreID)) {
-                val newScreening = Screening(screening.movie, screening.screeningDateTime, theatreID)
+                val newScreening = screening.copy(theatreID = theatreID)
                 if (screeningAPI.updateScreening(screeningID, newScreening)) {
                     println(" Screening has been successfully updated:")
-                    println(screeningAPI.getScreening(screeningID))
+                    println(" ${screeningAPI.getScreening(screeningID)}")
                 } else println(" Screening has been not been updated")
-            }
-        }
+            } else println(" Theatre not found for ID: $theatreID")
+        } else println(" No screening found for ID: $screeningID")
     }
 }
 
 fun listAllScreenings() =
     if (screeningAPI.hasScreenings()) {
-        screeningAPI.listAllScreenings()!!.forEach { println(it) }
-        println()
+        Utils.printStringList(screeningAPI.listAllScreenings()!!)
     } else println(" No screenings found")
 
 fun listScreeningsByMovie() =
     if (movieAPI.hasMovies()) {
-        movieAPI.listAllTitles()!!.forEach { println(it) }
-        println()
+        Utils.printStringList(movieAPI.listAllTitles()!!)
         val movieID = In.readNextInt(" Movie ID: ")
         if (movieAPI.movieExists(movieID)) {
             if (screeningAPI.hasScreeningsByMovie(movieID)) {
-                screeningAPI.listScreeningsByMovie(movieID)!!.forEach { println(it) }
-                println()
+                Utils.printStringList(screeningAPI.listScreeningsByMovie(movieID)!!)
             } else println(" No screenings found for ${movieAPI.getMovie(movieID)!!.title}")
         } else println(" No movie found for ID: $movieID")
     } else println(" No movies found")
 
 fun listScreeningsByDate() =
     if (movieAPI.hasMovies()) {
-        try {
-            val date =
-                LocalDate.parse(
-                    In.readNextLine(" Date (dd/mm/yyyy): "),
-                    DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                )
-            if (screeningAPI.hasScreeningsByDate(date)) {
-                screeningAPI
-                    .listScreeningsByDate(date)!!
-                    .forEach { println(it) }
-                println()
-            } else println(
-                " No screenings for ${date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}"
-            )
-        } catch (d: DateTimeParseException) {
-            println(" Invalid date entered")
-        }
+        val date = Utils.getValidDate(datePrompt, datePattern)
+        if (screeningAPI.hasScreeningsByDate(date)) {
+            Utils.printStringList(screeningAPI.listScreeningsByDate(date)!!)
+        } else println(" No screenings for ${date.format(dateFormatter)}")
     } else println(" No movies found")
 
 fun listScreeningsByMovieAndDate() =
     if (movieAPI.hasMovies()) {
-        movieAPI.listAllTitles()!!.forEach { println(it) }
-        println()
+        Utils.printStringList(movieAPI.listAllTitles()!!)
         val movieID = In.readNextInt(" Movie ID: ")
         if (movieAPI.movieExists(movieID)) {
-            try {
-                val date =
-                    LocalDate.parse(
-                        In.readNextLine(" Date (dd/mm/yyyy): "),
-                        DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                    )
-                if (screeningAPI.hasScreeningsByMovieAndDate(movieID, date)) {
-                    screeningAPI
-                        .listScreeningsByMovieAndDate(movieID, date)!!
-                        .forEach { println(it) }
-                    println()
-                } else println(
-                    " No screenings found for ${movieAPI.getMovie(movieID)!!.title} on " +
-                    date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+            val date = Utils.getValidDate(datePrompt, datePattern)
+            if (screeningAPI.hasScreeningsByMovieAndDate(movieID, date)) {
+                Utils.printStringList(
+                    screeningAPI.listScreeningsByMovieAndDate(movieID, date)!!
                 )
-            } catch (d: DateTimeParseException) {
-                println(" Invalid date entered")
-            }
-        } else println(" No movies found for ID: $movieID")
+            } else println(
+                " No screenings found for ${movieAPI.getMovie(movieID)!!.title} on " +
+                date.format(dateFormatter)
+            )
+        } else println(" No movie found for ID: $movieID")
     } else println(" No movies found")
 
 fun listDayRemainingScreenings() =
     if (screeningAPI.hasDayRemainingScreenings()) {
-        screeningAPI
-            .listDayRemainingScreenings()!!
-            .forEach { println(it) }
-        println()
+        Utils.printStringList(
+            screeningAPI.listDayRemainingScreenings()!!
+        )
     } else println(" No remaining screenings today")
 
 fun listDayRemainingScreeningsByMovie() =
     if (movieAPI.hasMovies()) {
-        movieAPI.listAllTitles()!!.forEach { println(it) }
-        println()
+        Utils.printStringList(movieAPI.listAllTitles()!!)
         val movieID = In.readNextInt(" Movie ID: ")
         if (movieAPI.movieExists(movieID)) {
             if (screeningAPI.hasDayRemainingScreeningsByMovie(movieID))
-                screeningAPI
-                    .listDayRemainingScreeningsByMovie(movieID)!!
-                    .forEach{ println(it) }
+                Utils.printStringList(
+                    screeningAPI
+                        .listDayRemainingScreeningsByMovie(movieID)!!
+                )
             else println(
                 " No remaining screenings for ${movieAPI.getMovie(movieID)!!.title} today"
             )
-        } else println(" No movies found for ID: $movieID")
+        } else println(" No movie found for ID: $movieID")
     } else println(" No movies found")
 
 fun listWeekRemainingScreenings() =
     if (screeningAPI.hasWeekRemainingScreenings()) {
-        screeningAPI
-            .listWeekRemainingScreenings()!!
-            .forEach { println(it) }
-        println()
+        Utils.printStringList(screeningAPI.listWeekRemainingScreenings()!!)
     } else println(" No remaining screenings this week")
 
 fun listWeekRemainingScreeningsByMovie() =
     if (movieAPI.hasMovies()) {
-        movieAPI.listAllTitles()!!.forEach { println(it) }
-        println()
+        Utils.printStringList(movieAPI.listAllTitles()!!)
         val movieID = In.readNextInt(" Movie ID: ")
         if (movieAPI.movieExists(movieID)) {
             if (screeningAPI.hasWeekRemainingScreeningsByMovie(movieID))
-                screeningAPI
-                    .listWeekRemainingScreeningsByMovie(movieID)!!
-                    .forEach{ println(it) }
+                Utils.printStringList(
+                    screeningAPI
+                        .listWeekRemainingScreeningsByMovie(movieID)!!
+                )
             else println(
                 " No remaining screenings for ${movieAPI.getMovie(movieID)!!.title} this week"
             )
-        } else println(" No movies found for ID: $movieID")
+        } else println(" No movie found for ID: $movieID")
     } else println(" No movies found")
 
 // Customers
 
-fun addCustomer() = println("Add customer called\n")
+fun addCustomer() {
+    val fName = In.readNextLine(" First Name: ")
+    val lName = In.readNextLine(" Last Name: ")
+    val email = Utils.getValidEmail(" Email: ")
+    val dob = Utils.getValidDate(" Date of birth ($datePattern): ", datePattern)
+    if (customerAPI.addCustomer(Customer(fName, lName, email, dob))) {
+            println(" Customer has been successfully added")
+    } else println(" Customer has not been added")
+}
 
-fun deleteCustomer() = println("Delete customer called\n")
+fun deleteCustomer() =
+    if (customerAPI.hasCustomers()) {
+        Utils.printStringList(customerAPI.listAllCustomers()!!)
+        val customerID = In.readNextInt(" Customer ID: ")
+        if (customerAPI.customerExists(customerID)) {
+            val customer = customerAPI.deleteCustomer(customerID)
+            if (customer != null) {
+                println(" Customer has been successfully deleted:")
+                println(" $customer")
+            } else println(" Customer has not been deleted")
+        } else println(" No customer found for ID: $customerID")
+    } else println(" No customers found")
 
-fun updateCustomer() = println("Update customer called\n")
+fun updateCustomer() =
+    if (customerAPI.hasCustomers()) {
+        Utils.printStringList(customerAPI.listAllCustomers()!!)
+        val customerID = In.readNextInt(" Customer ID to update: ")
+        if(customerAPI.customerExists(customerID)){
+            val fName = In.readNextLine(" New first name: ")
+            val lName = In.readNextLine(" New last name: ")
+            val email = Utils.getValidEmail(" New email: ")
+            val dob = Utils.getValidDate(" New date of birth ($datePattern): ", datePattern)
+            val newCustomer = Customer(fName, lName, email, dob)
+            if (customerAPI.updateCustomer(customerID, newCustomer)) {
+                println(" Customer has been successfully updated:")
+                println(" ${customerAPI.getCustomer(customerID)}")
+            } else println(" Customer has not been updated")
+        } else println(" No customer found for ID: $customerID")
+    } else println(" No customers found")
 
-fun viewCustomer() = println("View customer called\n")
+fun updateCustomerFName() {
+    if (customerAPI.hasCustomers()) {
+        Utils.printStringList(customerAPI.listAllCustomers()!!)
+        val customerID = In.readNextInt(" Customer ID to update: ")
+        if (customerAPI.customerExists(customerID)) {
+            val customer = customerAPI.getCustomer(customerID)!!
+            val fName = In.readNextLine(" New customer first name: ")
+            val newCustomer = customer.copy(fName = fName)
+            if (customerAPI.updateCustomer(customerID, newCustomer)) {
+                println(" Customer has been successfully updated:")
+                println(" ${customerAPI.getCustomer(customerID)}")
+            } else println(" Customer has not been updated")
+        } else println(" No customer found for ID: $customerID")
+    } else println(" No customers found")
+}
 
-fun listAllCustomers() = println("View all customers called\n")
+fun updateCustomerLName() {
+    if (customerAPI.hasCustomers()) {
+        Utils.printStringList(customerAPI.listAllCustomers()!!)
+        val customerID = In.readNextInt(" Customer ID to update: ")
+        if (customerAPI.customerExists(customerID)) {
+            val customer = customerAPI.getCustomer(customerID)!!
+            val lName = In.readNextLine(" New customer last name: ")
+            val newCustomer = customer.copy(lName = lName)
+            if (customerAPI.updateCustomer(customerID, newCustomer)) {
+                println(" Customer has been successfully updated:")
+                println(" ${customerAPI.getCustomer(customerID)}")
+            } else println(" Customer has not been updated")
+        } else println(" No customer found for ID: $customerID")
+    } else println(" No customers found")
+}
 
-fun listAllAdultCustomers() = println("View all adults customers called\n")
+fun updateCustomerEmail() {
+    if(customerAPI.hasCustomers()) {
+        Utils.printStringList(customerAPI.listAllCustomers()!!)
+        val customerID = In.readNextInt(" Customer ID to update: ")
+        if (customerAPI.customerExists(customerID)) {
+            val customer = customerAPI.getCustomer(customerID)!!
+            val email = Utils.getValidEmail(" New customer email: ")
+            val newCustomer = customer.copy(email = email)
+            if (customerAPI.updateCustomer(customerID, newCustomer)) {
+                println(" Customer has been successfully updated:")
+                println(" ${customerAPI.getCustomer(customerID)}")
+            } else println(" Customer has not been updated")
+        } else println(" No customer found for ID: $customerID")
+    } else println(" No customers found")
+}
 
-fun listAllChildCustomers() = println("View all child customers called\n")
+fun updateCustomerDOB() {
+    if (customerAPI.hasCustomers()) {
+        Utils.printStringList(customerAPI.listAllCustomers()!!)
+        val customerID = In.readNextInt(" Customer ID to update: ")
+        if (customerAPI.customerExists(customerID)) {
+            val customer = customerAPI.getCustomer(customerID)!!
+            val dob = Utils.getValidDate(" New date of birth ($datePattern): ", datePattern)
+            val newCustomer = customer.copy(dob = dob)
+            if (customerAPI.updateCustomer(customerID, newCustomer)) {
+                println(" Customer has been successfully updated:")
+                println(" ${customerAPI.getCustomer(customerID)}")
+            } else println(" Customer has not been updated")
+        } else println(" No customer found for ID: $customerID")
+    } else println(" No customers found")
+}
 
-// Misc
+fun listAllCustomers() =
+    if (customerAPI.hasCustomers()) {
+        Utils.printStringList(customerAPI.listAllCustomers()!!)
+    } else println(" No customers found")
+
+fun listAllCustomersByFirstName() =
+    if (customerAPI.hasCustomers()) {
+        val fName = In.readNextLine(" First Name: ")
+        val customerList =
+            customerAPI
+                .listAllCustomersByFirstName(
+                    fName
+                )
+        if (customerList != null) {
+            Utils.printStringList(customerList)
+        } else println(" No customers found with first name: $fName")
+    } else println(" No customers found")
+
+fun listAllCustomersByLastName() =
+    if (customerAPI.hasCustomers()) {
+        val lName = In.readNextLine(" Last Name: ")
+        val customerList =
+            customerAPI
+                .listAllCustomersByLastName(
+                    lName
+                )
+        if (customerList != null) {
+            Utils.printStringList(customerList)
+        } else println(" No customers found with last name: $lName")
+    } else println(" No customers found")
+
+fun listAllCustomersByAge() =
+    if (customerAPI.hasCustomers()) {
+        val age = In.readNextInt(" Age: ")
+        val customerList =
+            customerAPI
+                .listAllCustomersByAge(
+                    age
+                )
+        if (customerList != null) {
+            Utils.printStringList(customerList)
+        } else println(" No customers found with age: age")
+    } else println(" No customers found")
+
+fun listAllCustomersByAgeRange() {
+    if (customerAPI.hasCustomers()) {
+        val minAge = In.readNextInt(" Minimum Age: ")
+        val maxAge = In.readNextInt(" Maximum Age: ")
+        val customerList =
+            customerAPI
+                .listAllCustomersByAgeRange(
+                    minAge, maxAge
+                )
+        if (customerList != null) {
+            Utils.printStringList(customerList)
+        } else println(" No customers found within age range: $minAge - $maxAge")
+    } else println(" No customers found")
+}
+
+fun listAllAdultCustomers() =
+    if (customerAPI.hasAdultCustomers()) {
+        Utils.printStringList(customerAPI.listAllAdultCustomers()!!)
+    } else println(" No adult customers found")
+
+fun listAllChildCustomers() {
+    if (customerAPI.hasChildCustomers()) {
+        Utils.printStringList(customerAPI.listAllChildCustomers()!!)
+    } else println(" No child customers found")
+}
+
+// Miscellaneous
 
 fun getUserOption(): Int {
     val userChoice = In.readNextInt(PROMPT)

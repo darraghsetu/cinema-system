@@ -31,7 +31,7 @@ object ScannerInput {
                 print(prompt)
                 return Scanner(System.`in`).next().toInt()
             } catch (e: NumberFormatException) {
-                println("Please enter a number")
+                println(" Please enter a number")
             }
         } while (true)
     }
@@ -49,7 +49,7 @@ object ScannerInput {
                 print(prompt)
                 return Scanner(System.`in`).next().toDouble()
             } catch (e: NumberFormatException) {
-                println("Enter a number please.")
+                println(" Please enter a number")
             }
         } while (true)
     }

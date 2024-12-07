@@ -22,14 +22,20 @@ class CustomerAPITest {
         populatedCustomers = CustomerAPI()
         emptyCustomers = CustomerAPI()
 
-        populatedCustomers!!.addCustomer(Customer("Aoife", "Ayy", "aoife@gmail.com", LocalDate.of(2000, 1, 1))) // 24
-        populatedCustomers!!.addCustomer(Customer("Brendan", "Bee", "brendan@gmail.com", LocalDate.of(2006, 1, 1))) // 18
-        populatedCustomers!!.addCustomer(Customer("Cillian", "Cee", "cillian@gmail.com", LocalDate.of(2008, 1, 1))) // 16
+        populatedCustomers!!.addCustomer(
+            Customer("Aoife", "Ayy", "aoife@gmail.com", LocalDate.now().minusYears(24))
+        )
+        populatedCustomers!!.addCustomer(
+            Customer("Brendan", "Bee", "brendan@gmail.com", LocalDate.now().minusYears(18))
+        )
+        populatedCustomers!!.addCustomer(
+            Customer("Cillian", "Cee", "cillian@gmail.com", LocalDate.now().minusYears(16))
+        )
 
         aoife = populatedCustomers!!.getCustomer(1000)
         brendan = populatedCustomers!!.getCustomer(1001)
         cillian = populatedCustomers!!.getCustomer(1002)
-        daithi = Customer("Daithi", "Dee", "daithi@gmail.com", LocalDate.of(2010, 1, 1)) // 14
+        daithi = Customer("Daithi", "Dee", "daithi@gmail.com", LocalDate.now().minusYears(14))
     }
 
     @AfterEach
