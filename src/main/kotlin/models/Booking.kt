@@ -9,8 +9,8 @@ data class Booking(
     var salePrice: Double,
     var seats: List<String>,
 ) {
-    var bookingID = 0
-    var cancelled = false
+    internal var bookingID = 0
+    internal var cancelled = false
 
     @Override
     override fun toString() =

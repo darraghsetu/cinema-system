@@ -13,7 +13,6 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 // todo when finished: check all files for x(), ){, "x" not " x", "x:" not "x: ", empty lines
-// todo refactor: I think the updates / deletes with multiple options could be made back into one function for each
 
 private const val PROMPT = " > "
 private const val datePattern = "dd/MM/yyyy"

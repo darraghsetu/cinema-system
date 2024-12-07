@@ -130,14 +130,14 @@ class ScreeningAPITest {
         }
 
         @Test
-        fun `getScreening returns null if specified Screening ID does not exist in the ArrayList`() {
+        fun `getScreening returns null if the specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertFalse(populatedScreenings!!.screeningExists(9999))
             assertNull(populatedScreenings!!.getScreening(9999))
         }
 
         @Test
-        fun `getScreening returns Screening if specified Screening ID exists in the ArrayList`() {
+        fun `getScreening returns Screening if the specified Screening ID exists in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertTrue(populatedScreenings!!.screeningExists(1000))
             assertNotNull(populatedScreenings!!.getScreening(1000))
@@ -202,7 +202,7 @@ class ScreeningAPITest {
         }
         
         @Test
-        fun `updateScreening returns false if specified Screening ID does not exist in the ArrayList`() {
+        fun `updateScreening returns false if the specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertFalse(populatedScreenings!!.screeningExists(9999))
             assertFalse(populatedScreenings!!.updateScreening(9999, robocopScreening1!!))
@@ -244,7 +244,7 @@ class ScreeningAPITest {
         }
         
         @Test
-        fun `deleteScreening deletes and returns Screening if specified Screening ID exists in the ArrayList`() {
+        fun `deleteScreening deletes and returns Screening if the specified Screening ID exists in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertTrue(populatedScreenings!!.screeningExists(1000))
             assertNotNull(populatedScreenings!!.getScreening(1000))
@@ -334,14 +334,14 @@ class ScreeningAPITest {
         }
 
         @Test
-        fun `reserveSeat returns false if specified Screening ID does not exist in the ArrayList`() {
+        fun `reserveSeat returns false if the specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertFalse(populatedScreenings!!.screeningExists(9999))
             assertFalse(populatedScreenings!!.reserveSeats(9999, listOf("A1", "A2")))
         }
 
         @Test
-        fun `reserveSeat returns false if specified Screening does not have all specified seats`() {
+        fun `reserveSeat returns false if the specified Screening does not have all specified seats`() {
             // Test for an invalid seat
             assertTrue(populatedScreenings!!.hasScreenings())
             assertEquals(15, populatedScreenings!!.numberOfAvailableSeats(1000))
