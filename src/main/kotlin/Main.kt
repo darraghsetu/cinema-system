@@ -1,18 +1,25 @@
 import models.Customer
+import models.Booking
 import models.Movie
 import models.Screening
 import controllers.BookingAPI
 import controllers.CustomerAPI
 import controllers.MovieAPI
 import controllers.ScreeningAPI
-import models.Booking
+import persistence.JSONSerializer
+import persistence.XMLSerializer
 import utils.ScannerInput as In
 import utils.MenuUtilities as Menu
 import utils.Utilities as Utils
+import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+
+private lateinit var bookingAPI: BookingAPI
+private lateinit var customerAPI: CustomerAPI
+private lateinit var movieAPI: MovieAPI
+private lateinit var screeningAPI: ScreeningAPI
 
 private const val PROMPT = " > "
 private const val datePattern = "dd/MM/yyyy"
@@ -21,52 +28,12 @@ private val datePrompt = " Date (${datePattern.lowercase()}): "
 private val timePrompt = " Time (24 hour format - ${timePattern.lowercase()}): "
 private val dateFormatter = DateTimeFormatter.ofPattern(datePattern)
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("$datePattern $timePattern")
-//private lateinit var movieAPI: MovieAPI
-//private lateinit var screeningAPI: ScreeningAPI
-private val movieAPI = MovieAPI()
-private val screeningAPI = ScreeningAPI()
-private val customerAPI = CustomerAPI()
-private val bookingAPI = BookingAPI()
 
 fun main() {
-    // initControllersWithSerializer()
-    dummyData()
+    initControllersWithSerializer()
+    load()
     mainMenu()
-}
-
-fun dummyData() {
-    movieAPI.addMovie(Movie("Paddington", "Paul King", 95, "G"))
-    movieAPI.addMovie(Movie("The Matrix", "Lana Wachowski, Lilly Wachowski", 136, "15A"))
-    val paddington = movieAPI.getMovie(1000)!!
-    val matrix = movieAPI.getMovie(1001)!!
-
-    val todayMiddayDateTime = LocalDateTime.of( LocalDate.now(), LocalTime.NOON )
-    val todayMiddayDateTimePlusOneDays = todayMiddayDateTime.plusDays(1)
-    val todayMiddayDateTimePlusTwoDays = todayMiddayDateTime.plusDays(2)
-
-    screeningAPI.addScreening(Screening(paddington, todayMiddayDateTimePlusOneDays!!, 1))
-    screeningAPI.addScreening(Screening(paddington, todayMiddayDateTimePlusTwoDays!!, 3))
-    screeningAPI.addScreening(Screening(matrix, todayMiddayDateTime!!, 1))
-    screeningAPI.addScreening(Screening(matrix, todayMiddayDateTimePlusOneDays.plusHours(3), 2))
-    val paddingtonScreening1 = screeningAPI.getScreening(1000)!!
-    val paddingtonScreening2 = screeningAPI.getScreening(1001)!!
-    val matrixScreening1 = screeningAPI.getScreening(1002)!!
-    val matrixScreening2 = screeningAPI.getScreening(1003)!!
-
-    customerAPI.addCustomer(Customer("Aoife", "Ayy", "aoife@gmail.com", LocalDate.now().minusYears(24)))
-    customerAPI.addCustomer(Customer("Brendan", "Bee", "brendan@gmail.com", LocalDate.now().minusYears(18)))
-    customerAPI.addCustomer(Customer("Cillian", "Cee", "cillian@gmail.com", LocalDate.now().minusYears(16)))
-    val aoife = customerAPI.getCustomer(1000)!!
-    val brendan = customerAPI.getCustomer(1001)!!
-    val cillian = customerAPI.getCustomer(1002)!!
-
-
-    bookingAPI.addBooking(Booking(paddingtonScreening1, aoife, 2, 19.50, listOf("A1", "A2")))
-    bookingAPI.addBooking(Booking(paddingtonScreening2, brendan, 1, 10.00, listOf("A1")))
-    bookingAPI.addBooking(Booking(matrixScreening1, cillian, 1, 10.00, listOf("B1")))
-    bookingAPI.addBooking(Booking(matrixScreening2, aoife, 1, 10.00, listOf("A1")))
-    bookingAPI.addBooking(Booking(paddingtonScreening1, brendan, 1, 10.00, listOf("B1")))
-    bookingAPI.addBooking(Booking(matrixScreening1, brendan, 1, 10.00, listOf("A1")))
+    save()
 }
 
 fun runMenu(menuPrinter: () -> (Unit), options: List<() -> (Unit)>) {
@@ -890,29 +857,73 @@ fun getUserOption(): Int {
     return userChoice
 }
 
-/*
 fun initControllersWithSerializer() {
     var option  = 0
     while(option !in 1..2) {
-        println("---")
-        println("Would you like to save using JSON or XML")
-        println("---")
-        println("1 - JSON")
-        println("2 - XML")
+        println(" ---")
+        println(" Would you like to save using JSON or XML")
+        println(" ---")
+        println(" 1 - JSON")
+        println(" 2 - XML")
         option  = getUserOption()
         if (option != 1 && option != 2)
-            println("You must choose 1 (JSON) or 2 (XML) to proceed")
-        println("---")
+            println(" You must choose 1 (JSON) or 2 (XML) to proceed")
+        println(" ---")
     }
 
     if (option == 1) {
-        // init with json serializer
-        movieAPI = MovieAPI()
-        screeningAPI = ScreeningAPI()
+        // JSON
+        bookingAPI = BookingAPI(JSONSerializer(File("bookings.json")))
+        customerAPI = CustomerAPI(JSONSerializer(File("customers.json")))
+        movieAPI = MovieAPI(JSONSerializer(File("movies.json")))
+        screeningAPI = ScreeningAPI(JSONSerializer(File("screenings.json")))
     }
     else {
-        // init with xml serializer
-        movieAPI = MovieAPI()
-        screeningAPI = ScreeningAPI()
+        // XML
+        bookingAPI = BookingAPI(XMLSerializer(File("bookings.xml")))
+        customerAPI = CustomerAPI(XMLSerializer(File("customers.xml")))
+        movieAPI = MovieAPI(XMLSerializer(File("movies.xml")))
+        screeningAPI = ScreeningAPI(XMLSerializer(File("screenings.xml")))
     }
-}*/
+}
+
+fun save() {
+    try{
+        //bookingAPI.store()
+        customerAPI.store()
+        movieAPI.store()
+        screeningAPI.store()
+    } catch (e: Exception) {
+        System.err.println("Error writing to file: $e")
+    }
+}
+
+fun load() {
+    try{
+        //bookingAPI.load()
+        customerAPI.load()
+        movieAPI.load()
+        screeningAPI.load()
+
+        addBookings()
+    } catch (e: Exception) {
+        System.err.println("Error reading from file: $e")
+    }
+}
+
+private fun addBookings() {
+    val paddingtonScreening1 = screeningAPI.getScreening(1000)!!
+    val paddingtonScreening2 = screeningAPI.getScreening(1001)!!
+    val matrixScreening1 = screeningAPI.getScreening(1002)!!
+    val matrixScreening2 = screeningAPI.getScreening(1003)!!
+    val aoife = customerAPI.getCustomer(1000)!!
+    val brendan = customerAPI.getCustomer(1001)!!
+    val cillian = customerAPI.getCustomer(1002)!!
+
+    bookingAPI.addBooking(Booking(paddingtonScreening1, aoife, 2, 19.50, listOf("A1", "A2")))
+    bookingAPI.addBooking(Booking(paddingtonScreening2, brendan, 1, 10.00, listOf("A1")))
+    bookingAPI.addBooking(Booking(matrixScreening1, cillian, 1, 10.00, listOf("B1")))
+    bookingAPI.addBooking(Booking(matrixScreening2, aoife, 1, 10.00, listOf("A1")))
+    bookingAPI.addBooking(Booking(paddingtonScreening1, brendan, 1, 10.00, listOf("B1")))
+    bookingAPI.addBooking(Booking(matrixScreening1, brendan, 1, 10.00, listOf("A1")))
+}

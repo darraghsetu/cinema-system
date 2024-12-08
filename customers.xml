@@ -1,0 +1,28 @@
+<object-stream>
+  <list>
+    <models.Customer>
+      <fName>Aoife</fName>
+      <lName>Ayy</lName>
+      <email>aoife@gmail.com</email>
+      <dob>2000-12-08</dob>
+      <customerID>1000</customerID>
+      <isAdult>false</isAdult>
+    </models.Customer>
+    <models.Customer>
+      <fName>Brendan</fName>
+      <lName>Bee</lName>
+      <email>brendan@gmail.com</email>
+      <dob>2006-12-08</dob>
+      <customerID>1001</customerID>
+      <isAdult>false</isAdult>
+    </models.Customer>
+    <models.Customer>
+      <fName>Cillian</fName>
+      <lName>Cee</lName>
+      <email>cillian@gmail.com</email>
+      <dob>2008-12-08</dob>
+      <customerID>1002</customerID>
+      <isAdult>false</isAdult>
+    </models.Customer>
+  </list>
+</object-stream>

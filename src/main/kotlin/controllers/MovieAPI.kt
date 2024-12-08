@@ -1,9 +1,12 @@
 package controllers
 
 import models.Movie
+import persistence.Serializer
 
-class MovieAPI {
-    private val movies = ArrayList<Movie>()
+class MovieAPI(serializerType: Serializer) {
+
+    private val serializer: Serializer = serializerType
+    private var movies = ArrayList<Movie>()
     private val certificateList = listOf("G","PG","12A", "15A", "16", "18")
     private var currentID = 1000
 
@@ -44,4 +47,15 @@ class MovieAPI {
 
     fun isValidCertificate(str: String) =
         certificateList.contains(str)
+
+    @Throws(Exception::class)
+    fun load() {
+        @Suppress("UNCHECKED_CAST")
+        movies = serializer.read() as ArrayList<Movie>
+    }
+
+    @Throws(Exception::class)
+    fun store() {
+        serializer.write(movies)
+    }
 }

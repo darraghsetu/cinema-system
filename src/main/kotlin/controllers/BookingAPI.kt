@@ -1,9 +1,12 @@
 package controllers
 
 import models.Booking
+import persistence.Serializer
 
-class BookingAPI {
-    private val bookings = ArrayList<Booking>()
+class BookingAPI(serializerType: Serializer) {
+
+    private val serializer: Serializer = serializerType
+    private var bookings = ArrayList<Booking>()
     private var currentID = 1000
 
     fun addBooking(booking: Booking): Booking? {
@@ -95,4 +98,15 @@ class BookingAPI {
 
     fun bookingExists(id: Int) =
         bookings.any{ it.bookingID == id }
+
+    @Throws(Exception::class)
+    fun load() {
+        @Suppress("UNCHECKED_CAST")
+        bookings = serializer.read() as ArrayList<Booking>
+    }
+
+    @Throws(Exception::class)
+    fun store() {
+        serializer.write(bookings)
+    }
 }
