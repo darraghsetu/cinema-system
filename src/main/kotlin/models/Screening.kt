@@ -11,7 +11,6 @@ data class Screening(
     internal var screeningID = 0
     internal var seats = mutableListOf<String>()
 
-
     override fun toString() =
         "(ID: $screeningID) ${movie.title} (${movie.certification}) " +
         "on ${screeningDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("EEEE dd/MM/yyyy"))} " +

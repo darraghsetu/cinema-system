@@ -130,14 +130,14 @@ class ScreeningAPITest {
         }
 
         @Test
-        fun `getScreening returns null if specified Screening ID does not exist in the ArrayList`() {
+        fun `getScreening returns null if the specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertFalse(populatedScreenings!!.screeningExists(9999))
             assertNull(populatedScreenings!!.getScreening(9999))
         }
 
         @Test
-        fun `getScreening returns Screening if specified Screening ID exists in the ArrayList`() {
+        fun `getScreening returns Screening if the specified Screening ID exists in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertTrue(populatedScreenings!!.screeningExists(1000))
             assertNotNull(populatedScreenings!!.getScreening(1000))
@@ -202,7 +202,7 @@ class ScreeningAPITest {
         }
         
         @Test
-        fun `updateScreening returns false if specified Screening ID does not exist in the ArrayList`() {
+        fun `updateScreening returns false if the specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertFalse(populatedScreenings!!.screeningExists(9999))
             assertFalse(populatedScreenings!!.updateScreening(9999, robocopScreening1!!))
@@ -244,7 +244,7 @@ class ScreeningAPITest {
         }
         
         @Test
-        fun `deleteScreening deletes and returns Screening if specified Screening ID exists in the ArrayList`() {
+        fun `deleteScreening deletes and returns Screening if the specified Screening ID exists in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertTrue(populatedScreenings!!.screeningExists(1000))
             assertNotNull(populatedScreenings!!.getScreening(1000))
@@ -334,14 +334,14 @@ class ScreeningAPITest {
         }
 
         @Test
-        fun `reserveSeat returns false if specified Screening ID does not exist in the ArrayList`() {
+        fun `reserveSeat returns false if the specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertFalse(populatedScreenings!!.screeningExists(9999))
             assertFalse(populatedScreenings!!.reserveSeats(9999, listOf("A1", "A2")))
         }
 
         @Test
-        fun `reserveSeat returns false if specified Screening does not have all specified seats`() {
+        fun `reserveSeat returns false if the specified Screening does not contain all specified seats`() {
             // Test for an invalid seat
             assertTrue(populatedScreenings!!.hasScreenings())
             assertEquals(15, populatedScreenings!!.numberOfAvailableSeats(1000))
@@ -358,7 +358,7 @@ class ScreeningAPITest {
         }
 
         @Test
-        fun `reserveSeat returns true and also removes specified seats if Screening has all seats`() {
+        fun `reserveSeat returns true and also removes specified seats if specified Screening contains all seats`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertEquals(15, populatedScreenings!!.numberOfAvailableSeats(1000))
             assertTrue(populatedScreenings!!.reserveSeats(1000, listOf("A1", "A2", "A3", "A4")))
@@ -385,6 +385,25 @@ class ScreeningAPITest {
             assertEquals(populatedScreenings!!.getScreening(1001).toString(), screeningsList[1])
             assertEquals(populatedScreenings!!.getScreening(1002).toString(), screeningsList[2])
             assertEquals(populatedScreenings!!.getScreening(1003).toString(), screeningsList[3])
+        }
+
+        @Test
+        fun `listAllMovieTitles returns null if the ArrayList is empty`() {
+            assertFalse(emptyScreenings!!.hasScreenings())
+            assertNull(emptyScreenings!!.listAllMovieTitles())
+        }
+
+        @Test
+        fun `listAllMovieTitles returns list of unique Screening Movie titles if the ArrayList is not empty`() {
+            assertTrue(populatedScreenings!!.hasScreenings())
+            val screeningMovieTitles = populatedScreenings!!.listAllMovieTitles()!!
+
+            assertNotNull(screeningMovieTitles)
+            assertEquals(2, screeningMovieTitles.size)
+            val paddingtonTitle = "(ID: 1000) Paddington (G)"
+            val matrixTitle = "(ID: 1001) The Matrix (15A)"
+            assertEquals(paddingtonTitle, screeningMovieTitles[0])
+            assertEquals(matrixTitle, screeningMovieTitles[1])
         }
 
         @Test
@@ -941,6 +960,44 @@ class ScreeningAPITest {
             assertEquals(4, populatedScreenings!!.numberOfScreenings())
             assertEquals(2, populatedScreenings!!.numberOfScreeningsByMovie(1001))
             assertTrue(populatedScreenings!!.hasWeekRemainingScreeningsByMovie(1001))
+        }
+
+        @Test
+        fun `hasSeatsAvailable returns false if the ArrayList is empty`() {
+            assertFalse(emptyScreenings!!.hasScreenings())
+            assertFalse(emptyScreenings!!.hasSeatsAvailable(1000, listOf("A1", "A2")))
+        }
+
+        @Test
+        fun `hasSeatsAvailable returns false if the specified Screening ID does not exist in the ArrayList`() {
+            assertTrue(populatedScreenings!!.hasScreenings())
+            assertFalse(populatedScreenings!!.screeningExists(9999))
+            assertFalse(populatedScreenings!!.hasSeatsAvailable(9999, listOf("A1", "A2")))
+        }
+
+        @Test
+        fun `hasSeatsAvailable returns false if the specified Screening does not contain all specified seats`() {
+            // Test for an invalid seat
+            assertTrue(populatedScreenings!!.hasScreenings())
+            assertEquals(15, populatedScreenings!!.numberOfAvailableSeats(1000))
+            assertFalse(populatedScreenings!!.hasSeatsAvailable(1000, listOf("A99")))
+            assertEquals(15, populatedScreenings!!.numberOfAvailableSeats(1000))
+
+            // Test for valid seats that aren't available for reservation
+            assertEquals(15, populatedScreenings!!.numberOfAvailableSeats(1000))
+            assertTrue(populatedScreenings!!.reserveSeats(1000, listOf("A1", "A2", "A3", "A4")))
+            assertEquals(11, populatedScreenings!!.numberOfAvailableSeats(1000))
+
+            assertFalse(populatedScreenings!!.hasSeatsAvailable(1000, listOf("A1", "A2", "A3", "A4")))
+            assertEquals(11, populatedScreenings!!.numberOfAvailableSeats(1000))
+        }
+
+        @Test
+        fun `hasSeatsAvailable returns true if the specified Screening contains all seats`() {
+            assertTrue(populatedScreenings!!.hasScreenings())
+            assertEquals(15, populatedScreenings!!.numberOfAvailableSeats(1000))
+            assertTrue(populatedScreenings!!.hasSeatsAvailable(1000, listOf("A1", "A2", "A3", "A4")))
+            assertEquals(15, populatedScreenings!!.numberOfAvailableSeats(1000))
         }
 
         @Test
