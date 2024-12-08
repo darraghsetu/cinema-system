@@ -36,7 +36,6 @@ object MenuUtilities {
                 "Movies Menu",
                 "Screenings Menu",
                 "Customers Menu",
-                "Reports Menu",
                 "Exit"
             )
         )
@@ -87,16 +86,6 @@ object MenuUtilities {
                 "Delete a customer",
                 "Update a customer",
                 "View customers",
-                "Return to Main Menu"
-            )
-        )
-
-    @JvmStatic
-    fun printReportsMenu() =
-        printMenu(
-            "Reports Menu",
-            listOf(
-                "View reports",
                 "Return to Main Menu"
             )
         )
