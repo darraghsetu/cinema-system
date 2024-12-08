@@ -4,11 +4,13 @@ import models.Booking
 import models.Customer
 import models.Movie
 import models.Screening
+import persistence.XMLSerializer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -39,11 +41,11 @@ class BookingAPITest {
     
     @BeforeEach
     fun setup() {
-        movies = MovieAPI()
-        screenings = ScreeningAPI()
-        customers = CustomerAPI()
-        emptyBookings = BookingAPI()
-        populatedBookings = BookingAPI()
+        movies = MovieAPI(XMLSerializer(File("BookingAPITest.xml")))
+        screenings = ScreeningAPI(XMLSerializer(File("BookingAPITest.xml")))
+        customers = CustomerAPI(XMLSerializer(File("BookingAPITest.xml")))
+        emptyBookings = BookingAPI(XMLSerializer(File("BookingAPITest.xml")))
+        populatedBookings = BookingAPI(XMLSerializer(File("BookingAPITest.xml")))
         
         // Movies
         movies!!.addMovie(Movie("Paddington", "Paul King", 95, "G"))

@@ -2,11 +2,14 @@ package controllers
 
 import models.Movie
 import models.Screening
+import persistence.XMLSerializer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import persistence.JSONSerializer
+import java.io.File
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -25,8 +28,9 @@ class ScreeningAPITest {
     private var matrixScreening2: Screening? = null
     private var robocopScreening1: Screening? = null
 
-    private var populatedScreenings: ScreeningAPI? = ScreeningAPI()
-    private var emptyScreenings: ScreeningAPI? = ScreeningAPI()
+    private var emptyScreenings: ScreeningAPI? = null
+    private var populatedScreenings: ScreeningAPI? = null
+
 
     private var todayMiddayDateTime: LocalDateTime? = null
     private var todayMiddayDateTimePlusOneDays: LocalDateTime? = null
@@ -39,7 +43,7 @@ class ScreeningAPITest {
     @BeforeEach
     fun setup() {
         // Movies
-        val movies = MovieAPI()
+        val movies = MovieAPI(XMLSerializer(File("ScreeningAPITestMovies.xml")))
         movies.addMovie(Movie("Paddington", "Paul King", 95, "G"))
         movies.addMovie(Movie("The Matrix", "Lana Wachowski, Lilly Wachowski", 136, "15A"))
         movies.addMovie(Movie("Gladiator", "Ridley Scott", 155, "16"))
@@ -68,6 +72,9 @@ class ScreeningAPITest {
         matrixScreening1 = Screening(matrix!!, todayMiddayDateTime!!, 1)
         matrixScreening2 = Screening(matrix!!, todayMiddayDateTimePlusOneDays!!.plusHours(3), 2)
         robocopScreening1 = Screening(robocop!!, todayMiddayDateTimePlusTwoDays!!.plusHours(3), 3) // Not added
+
+        emptyScreenings = ScreeningAPI(XMLSerializer(File("ScreeningAPITest.xml")))
+        populatedScreenings = ScreeningAPI(XMLSerializer(File("ScreeningAPITest.xml")))
 
         populatedScreenings!!.addScreening(paddingtonScreening1!!)
         populatedScreenings!!.addScreening(paddingtonScreening2!!)
@@ -1148,7 +1155,84 @@ class ScreeningAPITest {
                 )
             )
         }
-
     }
 
+    @Nested
+    inner class PersistenceTests {
+        @Test
+        fun `saving and loading an empty collection in XML doesn't crash app`() {
+            // Saving an empty screeningsTest.xml file.
+            val storingScreenings = ScreeningAPI(XMLSerializer(File("screeningsTest.xml")))
+            storingScreenings.store()
+
+            //Loading the empty screeningsTest.xml file into a new object
+            val loadedScreenings = ScreeningAPI(XMLSerializer(File("screeningsTest.xml")))
+            loadedScreenings.load()
+
+            //Comparing the source of the screenings (storingScreenings) with the XML loaded screenings (loadedScreenings)
+            assertEquals(0, storingScreenings.numberOfScreenings())
+            assertEquals(0, loadedScreenings.numberOfScreenings())
+            assertEquals(storingScreenings.numberOfScreenings(), loadedScreenings.numberOfScreenings())
+        }
+
+        @Test
+        fun `saving and loading a loaded collection in XML doesn't lose data`() {
+            // Storing 3 screenings to the ScreeningAPITest.xml file.
+            val storingScreenings = ScreeningAPI(XMLSerializer(File("screeningsTest.xml")))
+            storingScreenings.addScreening(paddingtonScreening1!!)
+            storingScreenings.addScreening(paddingtonScreening2!!)
+            storingScreenings.addScreening(matrixScreening1!!)
+            storingScreenings.store()
+
+            //Loading screeningsTest.xml into a different collection
+            val loadedScreenings = ScreeningAPI(XMLSerializer(File("screeningsTest.xml")))
+            loadedScreenings.load()
+
+            //Comparing the source of the screenings (storingScreenings) with the XML loaded screenings (loadedScreenings)
+            assertEquals(3, storingScreenings.numberOfScreenings())
+            assertEquals(3, loadedScreenings.numberOfScreenings())
+            assertEquals(storingScreenings.numberOfScreenings(), loadedScreenings.numberOfScreenings())
+            assertEquals(storingScreenings.getScreening(1000), loadedScreenings.getScreening(1000))
+            assertEquals(storingScreenings.getScreening(1001), loadedScreenings.getScreening(1001))
+            assertEquals(storingScreenings.getScreening(1002), loadedScreenings.getScreening(1002))
+        }
+
+        @Test
+        fun `saving and loading an empty collection in JSON doesn't crash app`() {
+            // Saving an empty screeningsTest.json file.
+            val storingScreenings = ScreeningAPI(JSONSerializer(File("screeningsTest.json")))
+            storingScreenings.store()
+
+            //Loading the empty screeningsTest.json file into a new object
+            val loadedScreenings = ScreeningAPI(JSONSerializer(File("screeningsTest.json")))
+            loadedScreenings.load()
+
+            //Comparing the source of the screenings (storingScreenings) with the json loaded screenings (loadedScreenings)
+            assertEquals(0, storingScreenings.numberOfScreenings())
+            assertEquals(0, loadedScreenings.numberOfScreenings())
+            assertEquals(storingScreenings.numberOfScreenings(), loadedScreenings.numberOfScreenings())
+        }
+
+        @Test
+        fun `saving and loading a loaded collection in JSON doesn't lose data`() {
+            // Storing 3 screenings to the screeningsTest.json file.
+            val storingScreenings = ScreeningAPI(JSONSerializer(File("screeningsTest.json")))
+            storingScreenings.addScreening(paddingtonScreening1!!)
+            storingScreenings.addScreening(paddingtonScreening2!!)
+            storingScreenings.addScreening(matrixScreening1!!)
+            storingScreenings.store()
+
+            //Loading screeningsTest.json into a different collection
+            val loadedScreenings = ScreeningAPI(JSONSerializer(File("screeningsTest.json")))
+            loadedScreenings.load()
+
+            //Comparing the source of the screenings (storingScreenings) with the json loaded screenings (loadedScreenings)
+            assertEquals(3, storingScreenings.numberOfScreenings())
+            assertEquals(3, loadedScreenings.numberOfScreenings())
+            assertEquals(storingScreenings.numberOfScreenings(), loadedScreenings.numberOfScreenings())
+            assertEquals(storingScreenings.getScreening(0), loadedScreenings.getScreening(0))
+            assertEquals(storingScreenings.getScreening(1), loadedScreenings.getScreening(1))
+            assertEquals(storingScreenings.getScreening(2), loadedScreenings.getScreening(2))
+        }
+    }
 }
