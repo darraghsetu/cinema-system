@@ -8,27 +8,27 @@ data class Movie(
 ) {
     internal var movieID = 0
 
-    override fun toString() =
-        "(ID: $movieID) " +
-            "$title (dir: $director). " +
-            "Runtime: " +
-            "${
-            if (runtime / 60 == 0) {
-                ""
-            } else if (runtime / 60 == 1) {
-                (runtime / 60).toString() + " hour"
-            } else {
-                (runtime / 60).toString() + " hours"
+    override fun toString(): String {
+        val textAreaWidth = 50
+        val formatString = "%-${textAreaWidth}s"
+        val hours =
+            when (runtime / 60) {
+                0 -> ""
+                1 -> "1 hour"
+                else -> "${runtime / 60} hours"
             }
-            } " +
-            "${
-            if (runtime % 60 == 0) {
-                ""
-            } else if (runtime % 60 == 1) {
-                (runtime % 60).toString() + " minute"
-            } else {
-                (runtime % 60).toString() + " minutes"
+        val minutes =
+            when (runtime % 60) {
+                0 -> ""
+                1 -> "1 minute"
+                else -> "${runtime % 60} minutes"
             }
-            }. " +
-            "Rated: $certification"
+
+        return """
+        | │ ${String.format(formatString, "(ID: $movieID)")} │
+        | │ ${String.format(formatString, "$title (dir: $director)")} │
+        | │ ${String.format(formatString, "Runtime: $hours $minutes")} │
+        | │ ${String.format(formatString, "Certification: $certification")} │
+        """.trimMargin()
+    }
 }

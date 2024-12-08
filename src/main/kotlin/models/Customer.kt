@@ -12,8 +12,16 @@ data class Customer(
     internal var customerID = 0
     internal var isAdult = false
 
-    override fun toString() =
-        "(ID: $customerID) $fName $lName. " +
-            "Date of Birth: ${dob.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}. " +
-            "Email: $email"
+    override fun toString(): String {
+        val date = dob.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        val textAreaWidth = 50
+        val formatString = "%-${textAreaWidth}s"
+
+        return """
+        | │ ${String.format(formatString, "(ID: $customerID)")} │
+        | │ ${String.format(formatString, "Name: $fName $lName")} │
+        | │ ${String.format(formatString, "Date of Birth: $date")} │
+        | │ ${String.format(formatString, "Email: $email")} │
+        """.trimMargin()
+    }
 }

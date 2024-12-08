@@ -2,29 +2,77 @@ package utils
 
 object MenuUtilities {
 
+    private const val TEXT_AREA_WIDTH = 52
+
     private fun printMenu(heading: String, menuOptions: List<String>) {
         val optionLowerBound = 0
         val optionUpperBound = menuOptions.size - 1
 
+        val lineDivide = "| ┝━━━━━━━╋━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┥"
+        val optionFormatString = "%-${TEXT_AREA_WIDTH - 10}s"
         val optionsString =
             menuOptions
                 .dropLast(1)
-                .joinToString(separator = "\n") {
+                .joinToString(separator = "\n$lineDivide\n") {
                         option ->
-                    "| ${menuOptions.indexOf(option) + 1} - $option"
+                    "| │${String.format("%4s", (menuOptions.indexOf(option) + 1))}   ┃  " +
+                        "${String.format(optionFormatString, option)}│"
                 }
+
+        val lastOption =
+            "$lineDivide\n" +
+                "| │${String.format("%4s", optionLowerBound)}   ┃  " +
+                "${String.format(optionFormatString, menuOptions.last())}│"
 
         print(
             """
-            | $heading
-            | ---
+            | ╭────────────────────────────────────────────────────╮
+            | │                    Cinema System                   │
+            | ┝━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┥
+            ${centerHeading(heading)}
+            | ┝━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┥
             $optionsString
-            | $optionLowerBound - ${menuOptions.last()}
-            | ---
-            | Please enter a number between $optionLowerBound and $optionUpperBound
-            |
+            $lastOption
+            | ╰───────┸────────────────────────────────────────────╯
+            |  Please enter a number between $optionLowerBound and $optionUpperBound:
+            | 
             """.trimMargin()
         )
+    }
+
+    private fun centerHeading(heading: String): String {
+        val paddingAvailable = TEXT_AREA_WIDTH - heading.length
+        val paddingLeft: Int
+        val paddingRight: Int
+        if (paddingAvailable % 2 == 0) {
+            paddingLeft = paddingAvailable / 2
+            paddingRight = paddingLeft
+        } else {
+            paddingLeft = (paddingAvailable / 2) + 1
+            paddingRight = paddingLeft - 1
+        }
+
+        val formatString = "| │%2\$${paddingLeft}s%1\$s%2\$${paddingRight}s│"
+        return String.format(formatString, heading, " ")
+    }
+
+    @JvmStatic
+    fun printStringList(list: List<String>) {
+        val lineDivide = "\n ├────────────────────────────────────────────────────┤\n"
+        val listString = list.joinToString(separator = lineDivide) { it }
+
+        println(" ╭────────────────────────────────────────────────────╮")
+        println(listString)
+        println(" ╰────────────────────────────────────────────────────╯")
+        println()
+    }
+
+    @JvmStatic
+    fun printMessage(message: String) {
+        val messageFormat = "%-50s"
+        println(" ╭────────────────────────────────────────────────────╮")
+        println(" │ ${String.format(messageFormat, message)} │")
+        println(" ╰────────────────────────────────────────────────────╯")
     }
 
     @JvmStatic
@@ -141,10 +189,10 @@ object MenuUtilities {
                 "View screenings by movie",
                 "View screenings by date",
                 "View screenings by movie and date",
-                "View today's remaining screenings",
-                "View today's remaining screenings by movie",
-                "View this week's remaining screenings",
-                "View this week's remaining screenings by movie",
+                "View todays remaining screenings",
+                "View todays remaining screenings by movie",
+                "View weeks remaining screenings",
+                "View weeks remaining screenings by movie",
                 "Return to Screenings Menu"
             )
         )

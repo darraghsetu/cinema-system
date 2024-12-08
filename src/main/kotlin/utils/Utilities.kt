@@ -5,15 +5,9 @@ import java.time.LocalTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import utils.MenuUtilities as Menu
 
 object Utilities {
-
-    @JvmStatic
-    fun printStringList(list: List<String>) {
-        list.forEach { println(" $it") }
-        println()
-    }
-
     @JvmStatic
     fun dateToYears(date: LocalDate) =
         if (date < LocalDate.now()) {
@@ -32,7 +26,7 @@ object Utilities {
                 pattern
             )
 
-            if (date == null) println(" Invalid date entered")
+            if (date == null) Menu.printMessage("Invalid date entered")
         }
 
         return date
@@ -56,7 +50,7 @@ object Utilities {
                 pattern
             )
 
-            if (time == null) println(" Invalid time entered")
+            if (time == null) Menu.printMessage("Invalid time entered")
         }
 
         return time

@@ -29,9 +29,11 @@ object ScannerInput {
         do {
             try {
                 print(prompt)
-                return Scanner(System.`in`).next().toInt()
+                val nextInt = Scanner(System.`in`).next().toInt()
+                println()
+                return nextInt
             } catch (e: NumberFormatException) {
-                println(" Please enter a number")
+                println("  Invalid input, please try again")
             }
         } while (true)
     }
@@ -47,9 +49,11 @@ object ScannerInput {
         do {
             try {
                 print(prompt)
-                return Scanner(System.`in`).next().toDouble()
+                val nextDouble = Scanner(System.`in`).next().toDouble()
+                println()
+                return nextDouble
             } catch (e: NumberFormatException) {
-                println(" Please enter a number")
+                println("  Invalid input, please try again")
             }
         } while (true)
     }
@@ -63,7 +67,9 @@ object ScannerInput {
     @JvmStatic
     fun readNextLine(prompt: String?): String {
         print(prompt)
-        return Scanner(System.`in`).nextLine()
+        val nextLine = Scanner(System.`in`).nextLine()
+        println()
+        return nextLine
     }
 
     /**
@@ -75,6 +81,8 @@ object ScannerInput {
     @JvmStatic
     fun readNextChar(prompt: String?): Char {
         print(prompt)
-        return Scanner(System.`in`).next()[0]
+        val nextChar = Scanner(System.`in`).next()[0]
+        println()
+        return nextChar
     }
 }

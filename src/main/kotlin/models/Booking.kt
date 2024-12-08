@@ -13,13 +13,22 @@ data class Booking(
     internal var cancelled = false
 
     @Override
-    override fun toString() =
-        "(ID: $bookingID) " +
-            (if (cancelled) "CANCELLED b" else "B") +
-            "ooking for ${customer.fName} ${customer.lName}. \n" +
-            " ${screening.movie.title} (${screening.movie.certification}) on " +
-            "${screening.screeningDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))} at " +
-            "${screening.screeningDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))}. \n" +
-            " Tickets: $numberOfTickets (Total: €${String.format("%.2f", salePrice)}) \n" +
-            " Seats: ${seats.joinToString(separator = ", ")}."
+    override fun toString(): String {
+        val date = screening.screeningDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        val time = screening.screeningDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))
+        val cancelledString = if (cancelled) "CANCELLED booking" else "Booking"
+        val total = String.format("%.2f", salePrice)
+        val textAreaWidth = 50
+        val formatString = "%-${textAreaWidth}s"
+
+        return """
+        | │ ${String.format(formatString, "(ID: $bookingID)")} │
+        | │ ${String.format(formatString, "$cancelledString for ${customer.fName} ${customer.lName}.")} │ 
+        | │ ${String.format(formatString, "${screening.movie.title} (${screening.movie.certification})")} │
+        | │ ${String.format(formatString, "Date: $date")} │
+        | │ ${String.format(formatString, "Time: $time")} │
+        | │ ${String.format(formatString, "Tickets: $numberOfTickets (Total: €$total")} │
+        | │ ${String.format(formatString, "Seats: ${seats.joinToString(separator = ", ")}")} │  
+        """.trimMargin()
+    }
 }

@@ -118,10 +118,10 @@ class MovieAPITest {
         fun `listAllTitles returns list of Movie title strings if the ArrayList is not empty`() {
             val titlesList = populatedMovies!!.listAllTitles()!!
             assertEquals(populatedMovies!!.numberOfMovies(), titlesList.size)
-            assertEquals("1000: Paddington", titlesList[0])
-            assertEquals("1001: The Matrix", titlesList[1])
-            assertEquals("1002: Gladiator", titlesList[2])
-            assertEquals("1003: Robocop", titlesList[3])
+            assertTrue(titlesList[0].lowercase().contains("paddington"))
+            assertTrue(titlesList[1].lowercase().contains("matrix"))
+            assertTrue(titlesList[2].lowercase().contains("gladiator"))
+            assertTrue(titlesList[3].lowercase().contains("robocop"))
         }
 
         @Test

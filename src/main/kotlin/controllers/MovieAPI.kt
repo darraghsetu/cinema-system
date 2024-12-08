@@ -25,7 +25,7 @@ class MovieAPI(serializerType: Serializer) {
         movies.map { it.toString() }.ifEmpty { null }
 
     fun listAllTitles() =
-        movies.map { "${it.movieID}: ${it.title}" }.ifEmpty { null }
+        movies.map { " │ ${String.format("%-50s", "(ID: ${it.movieID}) ${it.title}")} │" }.ifEmpty { null }
 
     fun listMoviesByCertification(certification: String) =
         movies.filter { it.certification == certification }.map { it.toString() }.ifEmpty { null }
