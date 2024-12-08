@@ -45,9 +45,7 @@ object MenuUtilities {
             "Bookings Menu",
             listOf(
                 "Add a booking",
-                "View a booking",
-                "View all bookings by movie",
-                "View all bookings by date",
+                "View bookings",
                 "Return to Main Menu",
             )
         )
@@ -98,6 +96,21 @@ object MenuUtilities {
             listOf(
                 "View reports",
                 "Return to Main Menu",
+            )
+        )
+
+    @JvmStatic
+    fun printViewBookingsMenu() =
+        printMenu(
+            "View Bookings Menu",
+            listOf(
+                "View all bookings",
+                "View all active bookings",
+                "View all cancelled bookings",
+                "View all bookings by customer",
+                "View all bookings by screening",
+                "View all bookings by movie",
+                "Return to Bookings Menu",
             )
         )
 

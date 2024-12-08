@@ -16,9 +16,10 @@ data class Booking(
     override fun toString() =
         "(ID: $bookingID) " +
         (if(cancelled) "CANCELLED b" else "B") +
-        "ooking for ${customer.fName} ${customer.lName}. " +
-        "${screening.movie.title} (${screening.movie.certification}) on " +
+        "ooking for ${customer.fName} ${customer.lName}. \n" +
+        " ${screening.movie.title} (${screening.movie.certification}) on " +
         "${screening.screeningDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))} at " +
         "${screening.screeningDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))}. \n" +
-        "Seats: ${seats.joinToString(separator = ", ")}."
+        " Tickets: $numberOfTickets (Total: €${String.format("%.2f", salePrice)}) \n" +
+        " Seats: ${seats.joinToString(separator = ", ")}."
 }

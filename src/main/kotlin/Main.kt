@@ -1,9 +1,11 @@
 import models.Customer
 import models.Movie
 import models.Screening
+import controllers.BookingAPI
 import controllers.CustomerAPI
 import controllers.MovieAPI
 import controllers.ScreeningAPI
+import models.Booking
 import utils.ScannerInput as In
 import utils.MenuUtilities as Menu
 import utils.Utilities as Utils
@@ -11,8 +13,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-
-// todo when finished: check all files for x(), ){, "x" not " x", "x:" not "x: ", empty lines
 
 private const val PROMPT = " > "
 private const val datePattern = "dd/MM/yyyy"
@@ -26,6 +26,7 @@ private val dateTimeFormatter = DateTimeFormatter.ofPattern("$datePattern $timeP
 private val movieAPI = MovieAPI()
 private val screeningAPI = ScreeningAPI()
 private val customerAPI = CustomerAPI()
+private val bookingAPI = BookingAPI()
 
 fun main() {
     // initControllersWithSerializer()
@@ -43,19 +44,29 @@ fun dummyData() {
     val todayMiddayDateTimePlusOneDays = todayMiddayDateTime.plusDays(1)
     val todayMiddayDateTimePlusTwoDays = todayMiddayDateTime.plusDays(2)
 
-    val paddingtonScreening1 = Screening(paddington, todayMiddayDateTimePlusOneDays!!, 1)
-    val paddingtonScreening2 = Screening(paddington, todayMiddayDateTimePlusTwoDays!!, 3)
-    val matrixScreening1 = Screening(matrix, todayMiddayDateTime!!, 1)
-    val matrixScreening2 = Screening(matrix, todayMiddayDateTimePlusOneDays.plusHours(3), 2)
-
-    screeningAPI.addScreening(paddingtonScreening1)
-    screeningAPI.addScreening(paddingtonScreening2)
-    screeningAPI.addScreening(matrixScreening1)
-    screeningAPI.addScreening(matrixScreening2)
+    screeningAPI.addScreening(Screening(paddington, todayMiddayDateTimePlusOneDays!!, 1))
+    screeningAPI.addScreening(Screening(paddington, todayMiddayDateTimePlusTwoDays!!, 3))
+    screeningAPI.addScreening(Screening(matrix, todayMiddayDateTime!!, 1))
+    screeningAPI.addScreening(Screening(matrix, todayMiddayDateTimePlusOneDays.plusHours(3), 2))
+    val paddingtonScreening1 = screeningAPI.getScreening(1000)!!
+    val paddingtonScreening2 = screeningAPI.getScreening(1001)!!
+    val matrixScreening1 = screeningAPI.getScreening(1002)!!
+    val matrixScreening2 = screeningAPI.getScreening(1003)!!
 
     customerAPI.addCustomer(Customer("Aoife", "Ayy", "aoife@gmail.com", LocalDate.now().minusYears(24)))
     customerAPI.addCustomer(Customer("Brendan", "Bee", "brendan@gmail.com", LocalDate.now().minusYears(18)))
     customerAPI.addCustomer(Customer("Cillian", "Cee", "cillian@gmail.com", LocalDate.now().minusYears(16)))
+    val aoife = customerAPI.getCustomer(1000)!!
+    val brendan = customerAPI.getCustomer(1001)!!
+    val cillian = customerAPI.getCustomer(1002)!!
+
+
+    bookingAPI.addBooking(Booking(paddingtonScreening1, aoife, 2, 19.50, listOf("A1", "A2")))
+    bookingAPI.addBooking(Booking(paddingtonScreening2, brendan, 1, 10.00, listOf("A1")))
+    bookingAPI.addBooking(Booking(matrixScreening1, cillian, 1, 10.00, listOf("B1")))
+    bookingAPI.addBooking(Booking(matrixScreening2, aoife, 1, 10.00, listOf("A1")))
+    bookingAPI.addBooking(Booking(paddingtonScreening1, brendan, 1, 10.00, listOf("B1")))
+    bookingAPI.addBooking(Booking(matrixScreening1, brendan, 1, 10.00, listOf("A1")))
 }
 
 fun runMenu(menuPrinter: () -> (Unit), options: List<() -> (Unit)>) {
@@ -66,7 +77,7 @@ fun runMenu(menuPrinter: () -> (Unit), options: List<() -> (Unit)>) {
         if (option in 1..options.size) {
             options[option-1]()
         } else if (option != 0) {
-            println(" Invalid option, please try again")
+            println(" Invalid selection: $option")
             println()
         }
     } while (option != 0)
@@ -89,9 +100,7 @@ fun bookingsMenu() =
         Menu::printBookingsMenu,
         listOf(
             ::addBooking,
-            ::viewBooking,
-            ::listBookingsByMovie,
-            ::listBookingsByDate,
+            ::viewBookingsMenu,
         )
     )
 
@@ -130,6 +139,21 @@ fun customersMenu() =
 
 fun reportsMenu() =
     println("reports menu")
+
+fun viewBookingsMenu() =
+    if (bookingAPI.hasBookings()) {
+        runMenu(
+            Menu::printViewBookingsMenu,
+            listOf(
+                ::listAllBookings,
+                ::listAllActiveBookings,
+                ::listAllCancelledBookings,
+                ::listAllBookingsByCustomer,
+                ::listAllBookingsByScreening,
+                ::listAllBookingsByMovie,
+            )
+        )
+    } else println(" No bookings found")
 
 fun deleteScreeningMenu() =
     if (screeningAPI.hasScreenings()) {
@@ -207,13 +231,158 @@ fun viewCustomersMenu() =
 
 // Bookings
 
-fun addBooking() = println("Add booking called\n")
+fun addBooking() =
+    if (screeningAPI.hasScreenings()) {
+        val helper = BookingHelperFunctions()
+        val movieID = helper.getMovieID()
+        if (screeningAPI.hasScreeningsByMovie(movieID)) {
+            val screeningID = helper.getScreeningID(movieID)
+            if (screeningAPI.screeningExists(screeningID)) {
+                val screening = helper.getScreening(movieID, screeningID)
+                if (screening != null) {
+                    val underage = helper.underAgeCheck(screening.movie.certification)
+                    if (!underage) {
+                        if (screeningAPI.numberOfAvailableSeats(screeningID) > 0) {
+                            val numberOfTickets = helper.numTickets(screeningID)
+                            if (numberOfTickets in 1..screening.seats.size) {
+                                val seatsList = helper.seatCheck(screeningID)
+                                if (screeningAPI.hasSeatsAvailable(screeningID, seatsList)) {
+                                    val customer = helper.getCustomer()
+                                    if ( customer != null ) {
+                                        val totalPrice = helper.calculatePrice(numberOfTickets)
+                                        val booking = 
+                                            bookingAPI.addBooking(
+                                                Booking(screening, customer, numberOfTickets, totalPrice, seatsList)
+                                            )
+                                        if (booking != null && screeningAPI.reserveSeats(screeningID, seatsList)) {
+                                            println(" Booking has been successful:")
+                                            println(" $booking")
+                                        } else println(" Booking has not been successful")
+                                    } else println(" Invalid selection")
+                                } else println(" Invalid seats chosen")
+                            } else println(" Invalid number of tickets chosen")
+                        } else println(" No seats available")
+                    } else println(" Must meet the requirements for ${screening.movie.certification}")
+                } else println(" No screening found of ${movieAPI.getMovie(movieID)!!.title} for screening ID: $screeningID")
+            } else println(" No screening found for screening ID: $screeningID")
+        } else println(" No screenings found for movie ID: $movieID")
+    } else println(" No screenings found")
 
-fun viewBooking() = println("View booking called\n")
+class BookingHelperFunctions {
+    internal fun getMovieID(): Int {
+        val movieTitles = screeningAPI.listAllMovieTitles()!!
+        Utils.printStringList(movieTitles)
+        return In.readNextInt(" Movie ID: ")
+    }
+    
+    internal fun getScreeningID(movieID: Int): Int {
+        val movieScreenings = screeningAPI.listScreeningsByMovie(movieID)!!
+        Utils.printStringList(movieScreenings)
+        return In.readNextInt(" Screening ID: ")
+    }
+    
+    internal fun getScreening(movieID: Int, screeningID: Int) =
+        if (screeningAPI.listScreeningsByMovie(movieID)!!.contains(screeningAPI.getScreening(screeningID).toString()))
+            screeningAPI.getScreening(screeningID)!!
+        else null
+    
+    internal fun underAgeCheck(certification: String): Boolean {
+        val restrictedCertifications = listOf("12A", "15A", "16", "18")
+        var underage = false
+        if (certification in restrictedCertifications) {
+            underage = In.readNextLine(
+                " Do all customers meet the age/parental supervision requirement" +
+                        " for this certification (${certification}? (Y/N): \n "
+            ).uppercase() != "Y"
+        }
+        return underage
+    }
+    
+    internal fun numTickets(screeningID: Int): Int {
+        println(" ${screeningAPI.numberOfAvailableSeats(screeningID)} available seats")
+        return In.readNextInt(" Number of tickets: ")
+    }
+    
+    internal fun seatCheck(screeningID: Int): List<String> {
+        Utils.printStringList(screeningAPI.listAvailableSeats(screeningID)!!)
+        val seats = In.readNextLine(" Please choose seats (separated by commas): ")
+        return seats.split(",").map { it.trim().uppercase() }.toList()
+    }
+    
+    internal fun getCustomer(): Customer? {
+        val isCustomer = In.readNextLine(
+            " Is this customer registered with this cinema? (Y/N): \n "
+        ).uppercase()
+        val unregisteredCustomer = Customer("Unregistered", "Customer", "", LocalDate.of(1900, 1, 1))
+        val customer = when (isCustomer) {
+            "Y" -> {
+                var customerID = 0
+                val lName = In.readNextLine(" Last name on customer's account: ")
+                val customersByLName = customerAPI.listAllCustomersByLastName(lName)
+                if (customersByLName != null) {
+                    Utils.printStringList(customersByLName)
+                    customerID = In.readNextInt(" Customer ID: ")
+                    if (!customerAPI.customerExists(customerID)) {
+                        println(" Customer not found. Proceeding with unregistered purchase")
+                    }
+                }
+                customerAPI.getCustomer(customerID) ?: unregisteredCustomer
+            }
 
-fun listBookingsByMovie() = println("View booking by movie called\n")
+            "N" -> unregisteredCustomer
+            else -> null
+        }
+        return customer
+    }
+    
+    internal fun calculatePrice(numberOfTickets: Int) =
+        numberOfTickets.toDouble() * 10.0
+}
 
-fun listBookingsByDate() = println("View booking by date called\n")
+fun listAllBookings() =
+    if (bookingAPI.hasBookings()) Utils.printStringList(bookingAPI.listAllBookings()!!)
+    else println(" No bookings found")
+
+fun listAllActiveBookings() =
+    if (bookingAPI.hasActiveBookings()) Utils.printStringList(bookingAPI.listAllActiveBookings()!!)
+    else println(" No active bookings found")
+
+fun listAllCancelledBookings() =
+    if (bookingAPI.hasCancelledBookings()) Utils.printStringList(bookingAPI.listAllCancelledBookings()!!)
+    else println(" No cancelled bookings found")
+
+fun listAllBookingsByCustomer() =
+    if (customerAPI.hasCustomers()) {
+        Utils.printStringList(customerAPI.listAllCustomers()!!)
+        val customerID = In.readNextInt(" Customer ID: ")
+        if (customerAPI.customerExists(customerID)) {
+            if (bookingAPI.hasCustomer(customerID)) {
+                Utils.printStringList(bookingAPI.listActiveBookingsByCustomer(customerID)!!)
+            } else println(" No bookings found for customer ID: $customerID")
+        } else println(" No customer found for customer ID: $customerID")
+    } else println(" No customers found")
+
+fun listAllBookingsByScreening() =
+    if (screeningAPI.hasScreenings()) {
+        Utils.printStringList(screeningAPI.listAllScreenings()!!)
+        val screeningID = In.readNextInt(" Screening ID: ")
+        if (screeningAPI.screeningExists(screeningID)) {
+            if (bookingAPI.hasScreening(screeningID)) {
+                Utils.printStringList(bookingAPI.listActiveBookingsByScreening(screeningID)!!)
+            } else println(" No bookings found for screening ID: $screeningID")
+        } else println(" No screenings found for screening ID: $screeningID")
+    } else println(" No screenings found")
+
+fun listAllBookingsByMovie() =
+    if (movieAPI.hasMovies()) {
+        Utils.printStringList(movieAPI.listAllTitles()!!)
+        val movieID = In.readNextInt(" Movie ID: ")
+        if (movieAPI.movieExists(movieID)) {
+            if (bookingAPI.listActiveBookingsByMovie(movieID) != null) {
+                Utils.printStringList(bookingAPI.listActiveBookingsByMovie(movieID)!!)
+            } else println(" No bookings found for movie ID: $movieID")
+        } else println(" No movie found for movie ID: $movieID")
+    } else println(" No movies found")
 
 // Movies
 
@@ -566,7 +735,7 @@ fun updateCustomer() =
     if (customerAPI.hasCustomers()) {
         Utils.printStringList(customerAPI.listAllCustomers()!!)
         val customerID = In.readNextInt(" Customer ID to update: ")
-        if(customerAPI.customerExists(customerID)){
+        if (customerAPI.customerExists(customerID)) {
             val fName = In.readNextLine(" New first name: ")
             val lName = In.readNextLine(" New last name: ")
             val email = Utils.getValidEmail(" New email: ")
@@ -612,7 +781,7 @@ fun updateCustomerLName() {
 }
 
 fun updateCustomerEmail() {
-    if(customerAPI.hasCustomers()) {
+    if (customerAPI.hasCustomers()) {
         Utils.printStringList(customerAPI.listAllCustomers()!!)
         val customerID = In.readNextInt(" Customer ID to update: ")
         if (customerAPI.customerExists(customerID)) {

@@ -103,6 +103,14 @@ class ScreeningAPI {
     fun listAllScreenings() =
         filterScreenings { true }
 
+    fun listAllMovieTitles() =
+        screenings
+            .sortedBy { it.movie.movieID }
+            .map{ "(ID: ${it.movie.movieID}) ${it.movie.title} (${it.movie.certification})" }
+            .toSet()
+            .toList()
+            .ifEmpty { null }
+
     fun listScreeningsByMovie(movieID: Int) =
         filterScreenings { it.movie.movieID == movieID }
 
@@ -162,7 +170,7 @@ class ScreeningAPI {
         }
 
     fun listAvailableSeats(id: Int) =
-        getScreening(id)?.seats?.toMutableList()?.ifEmpty { null }
+        getScreening(id)?.seats?.toList()?.ifEmpty { null }
 
     fun numberOfScreenings() =
         screenings.size
@@ -220,7 +228,7 @@ class ScreeningAPI {
     fun hasWeekRemainingScreeningsByMovie(movieID: Int) =
         numberOfWeekRemainingScreeningsByMovie(movieID) > 0
 
-    private fun hasSeatsAvailable(id: Int, seats: List<String>) =
+    fun hasSeatsAvailable(id: Int, seats: List<String>) =
         getScreening(id)?.seats?.containsAll(seats) ?: false
 
     fun screeningExists(id: Int) =

@@ -6,9 +6,10 @@ class BookingAPI {
     private val bookings = ArrayList<Booking>()
     private var currentID = 1000
 
-    fun addBooking(booking: Booking): Boolean {
-        booking.bookingID = getNextID()
-        return bookings.add(booking)
+    fun addBooking(booking: Booking): Booking? {
+        val bookingID = getNextID()
+        booking.bookingID = bookingID
+        return if( bookings.add(booking) ) getBooking(bookingID) else null
     }
 
     fun cancelBooking(id: Int) =

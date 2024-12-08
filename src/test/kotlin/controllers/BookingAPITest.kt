@@ -124,16 +124,16 @@ class BookingAPITest {
     @Nested
     inner class AddBooking {
         @Test
-        fun `addBooking returns true and adds Booking to an empty ArrayList`() {
+        fun `addBooking returns Booking and adds Booking to an empty ArrayList`() {
             assertEquals(0, emptyBookings!!.numberOfBookings())
-            assertTrue(emptyBookings!!.addBooking(booking4!!))
+            assertNotNull(emptyBookings!!.addBooking(booking4!!))
             assertEquals(1, emptyBookings!!.numberOfBookings())
         }
 
         @Test
-        fun `addBooking returns true and adds Booking to a populated ArrayList`() {
+        fun `addBooking returns Booking and adds Booking to a populated ArrayList`() {
             assertEquals(3, populatedBookings!!.numberOfBookings())
-            assertTrue(populatedBookings!!.addBooking(booking4!!))
+            assertNotNull(populatedBookings!!.addBooking(booking4!!))
             assertEquals(4, populatedBookings!!.numberOfBookings())
         }
     }
