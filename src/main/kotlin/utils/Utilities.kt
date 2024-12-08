@@ -16,7 +16,11 @@ object Utilities {
 
     @JvmStatic
     fun dateToYears(date: LocalDate) =
-        Period.between(date, LocalDate.now()).years
+        if (date < LocalDate.now()) {
+            Period.between(date, LocalDate.now()).years
+        } else {
+            -1
+        }
 
     @JvmStatic
     fun getValidDate(prompt: String, pattern: String): LocalDate {

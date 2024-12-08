@@ -57,8 +57,7 @@ fun mainMenu() =
             ::bookingsMenu,
             ::moviesMenu,
             ::screeningsMenu,
-            ::customersMenu,
-            ::reportsMenu
+            ::customersMenu
         )
     )
 
@@ -103,9 +102,6 @@ fun customersMenu() =
             ::viewCustomersMenu
         )
     )
-
-fun reportsMenu() =
-    println("reports menu")
 
 fun viewBookingsMenu() =
     if (bookingAPI.hasBookings()) {
