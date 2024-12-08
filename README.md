@@ -53,7 +53,7 @@ To get started:
     - Run Main.kt
 - Alternatively:
   - Nagivate to the Actions tab
-  - Click the "update build-test-report.yml" workflow
+  - Click the most recent workflow run
   - Under Artifacts, click "Jar with Dependencies"
   - For Windows:
     - Right click the downloaded Zip file
