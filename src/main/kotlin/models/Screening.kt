@@ -11,9 +11,18 @@ data class Screening(
     internal var screeningID = 0
     internal var seats = mutableListOf<String>()
 
-    override fun toString() =
-        "(ID: $screeningID) ${movie.title} (${movie.certification}) " +
-            "on ${screeningDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("EEEE dd/MM/yyyy"))} " +
-            "at ${screeningDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))} in " +
-            "Theatre $theatreID"
+    override fun toString(): String {
+        val textAreaWidth = 50
+        val formatString = "%-${textAreaWidth}s"
+        val date = screeningDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("EEEE dd/MM/yyyy"))
+        val time = screeningDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))
+
+        return """
+        | │ ${String.format(formatString, "(ID: $screeningID)")} │
+        | │ ${String.format(formatString, "${movie.title} (${movie.certification})")} │
+        | │ ${String.format(formatString, "Date: $date")} │
+        | │ ${String.format(formatString, "Time: $time")} │
+        | │ ${String.format(formatString, "Theatre: $theatreID")} │
+        """.trimMargin()
+    }
 }
