@@ -1,0 +1,18 @@
+<object-stream>
+  <list>
+    <models.Movie>
+      <title>Paddington</title>
+      <director>Paul King</director>
+      <runtime>95</runtime>
+      <certification>G</certification>
+      <movieID>1000</movieID>
+    </models.Movie>
+    <models.Movie>
+      <title>The Matrix</title>
+      <director>Lana Wachowski, Lilly Wachowski</director>
+      <runtime>136</runtime>
+      <certification>15A</certification>
+      <movieID>1001</movieID>
+    </models.Movie>
+  </list>
+</object-stream>

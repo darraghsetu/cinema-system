@@ -1,13 +1,16 @@
 package controllers
 
 import models.Screening
+import persistence.Serializer
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-class ScreeningAPI {
-    private val screenings = ArrayList<Screening>()
+class ScreeningAPI(serializerType: Serializer) {
+
+    private val serializer: Serializer = serializerType
+    private var screenings = ArrayList<Screening>()
     private val openingTime = LocalTime.of(9, 0)
     private val closingTime = LocalTime.of(23, 0)
     private var currentID = 1000
@@ -286,5 +289,16 @@ class ScreeningAPI {
                 return true // No clashes found
             } else return true // No screenings to clash with, available
         } else return false
+    }
+
+    @Throws(Exception::class)
+    fun load() {
+        @Suppress("UNCHECKED_CAST")
+        screenings = serializer.read() as ArrayList<Screening>
+    }
+
+    @Throws(Exception::class)
+    fun store() {
+        serializer.write(screenings)
     }
 }

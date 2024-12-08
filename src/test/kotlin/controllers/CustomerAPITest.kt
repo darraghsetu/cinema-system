@@ -1,11 +1,14 @@
 package controllers
 
 import models.Customer
+import persistence.JSONSerializer
+import persistence.XMLSerializer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.io.File
 import java.time.LocalDate
 
 class CustomerAPITest {
@@ -19,8 +22,8 @@ class CustomerAPITest {
 
     @BeforeEach
     fun setup() {
-        populatedCustomers = CustomerAPI()
-        emptyCustomers = CustomerAPI()
+        populatedCustomers = CustomerAPI(XMLSerializer(File("CustomerAPITest.xml")))
+        emptyCustomers = CustomerAPI(XMLSerializer(File("CustomerAPITest.xml")))
 
         populatedCustomers!!.addCustomer(
             Customer("Aoife", "Ayy", "aoife@gmail.com", LocalDate.now().minusYears(24))
@@ -493,4 +496,84 @@ class CustomerAPITest {
             assertTrue(populatedCustomers!!.customerExists(1003))
         }
     }
+
+    @Nested
+    inner class PersistenceTests {
+        @Test
+        fun `saving and loading an empty collection in XML doesn't crash app`() {
+            // Saving an empty customersTest.xml file.
+            val storingCustomers = CustomerAPI(XMLSerializer(File("customersTest.xml")))
+            storingCustomers.store()
+
+            //Loading the empty customersTest.xml file into a new object
+            val loadedCustomers = CustomerAPI(XMLSerializer(File("customersTest.xml")))
+            loadedCustomers.load()
+
+            //Comparing the source of the notes (storingCustomers) with the XML loaded notes (loadedCustomers)
+            assertEquals(0, storingCustomers.numberOfCustomers())
+            assertEquals(0, loadedCustomers.numberOfCustomers())
+            assertEquals(storingCustomers.numberOfCustomers(), loadedCustomers.numberOfCustomers())
+        }
+
+        @Test
+        fun `saving and loading a loaded collection in XML doesn't lose data`() {
+            // Storing 3 customers to the customersTest.xml file.
+            val storingCustomers = CustomerAPI(XMLSerializer(File("customersTest.xml")))
+            storingCustomers.addCustomer(aoife!!)
+            storingCustomers.addCustomer(brendan!!)
+            storingCustomers.addCustomer(cillian!!)
+            storingCustomers.store()
+
+            //Loading customersTest.xml into a different collection
+            val loadedCustomers = CustomerAPI(XMLSerializer(File("customersTest.xml")))
+            loadedCustomers.load()
+
+            //Comparing the source of the customers (storingCustomers) with the XML loaded customers (loadedCustomers)
+            assertEquals(3, storingCustomers.numberOfCustomers())
+            assertEquals(3, loadedCustomers.numberOfCustomers())
+            assertEquals(storingCustomers.numberOfCustomers(), loadedCustomers.numberOfCustomers())
+            assertEquals(storingCustomers.getCustomer(1000), loadedCustomers.getCustomer(1000))
+            assertEquals(storingCustomers.getCustomer(1001), loadedCustomers.getCustomer(1001))
+            assertEquals(storingCustomers.getCustomer(1002), loadedCustomers.getCustomer(1002))
+        }
+
+        @Test
+        fun `saving and loading an empty collection in JSON doesn't crash app`() {
+            // Saving an empty customersTest.json file.
+            val storingCustomers = CustomerAPI(JSONSerializer(File("customersTest.json")))
+            storingCustomers.store()
+
+            //Loading the empty customersTest.json file into a new object
+            val loadedCustomers = CustomerAPI(JSONSerializer(File("customersTest.json")))
+            loadedCustomers.load()
+
+            //Comparing the source of the customers (storingCustomers) with the json loaded customers (loadedCustomers)
+            assertEquals(0, storingCustomers.numberOfCustomers())
+            assertEquals(0, loadedCustomers.numberOfCustomers())
+            assertEquals(storingCustomers.numberOfCustomers(), loadedCustomers.numberOfCustomers())
+        }
+
+        @Test
+        fun `saving and loading a loaded collection in JSON doesn't lose data`() {
+            // Storing 3 customers to the customersTest.json file.
+            val storingCustomers = CustomerAPI(JSONSerializer(File("customersTest.json")))
+            storingCustomers.addCustomer(aoife!!)
+            storingCustomers.addCustomer(brendan!!)
+            storingCustomers.addCustomer(cillian!!)
+            storingCustomers.store()
+
+            //Loading customersTest.json into a different collection
+            val loadedCustomers = CustomerAPI(JSONSerializer(File("customersTest.json")))
+            loadedCustomers.load()
+
+            //Comparing the source of the customers (storingCustomers) with the json loaded customers (loadedCustomers)
+            assertEquals(3, storingCustomers.numberOfCustomers())
+            assertEquals(3, loadedCustomers.numberOfCustomers())
+            assertEquals(storingCustomers.numberOfCustomers(), loadedCustomers.numberOfCustomers())
+            assertEquals(storingCustomers.getCustomer(0), loadedCustomers.getCustomer(0))
+            assertEquals(storingCustomers.getCustomer(1), loadedCustomers.getCustomer(1))
+            assertEquals(storingCustomers.getCustomer(2), loadedCustomers.getCustomer(2))
+        }
+    }
+
 }

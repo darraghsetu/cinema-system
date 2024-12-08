@@ -1,11 +1,14 @@
 package controllers
 
 import models.Movie
+import persistence.XMLSerializer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import persistence.JSONSerializer
+import java.io.File
 
 class MovieAPITest {
     private var paddington: Movie? = null
@@ -14,8 +17,8 @@ class MovieAPITest {
     private var robocop: Movie? = null
     private var casablanca: Movie? = null
 
-    private var populatedMovies: MovieAPI? = MovieAPI()
-    private var emptyMovies: MovieAPI? = MovieAPI()
+    private var populatedMovies: MovieAPI? = MovieAPI(XMLSerializer(File("MovieAPITest.xml")))
+    private var emptyMovies: MovieAPI? = MovieAPI(XMLSerializer(File("MovieAPITest.xml")))
 
     @BeforeEach
     fun setup() {
@@ -241,6 +244,85 @@ class MovieAPITest {
             assertTrue(populatedMovies!!.isValidCertificate("15A"))
             assertTrue(populatedMovies!!.isValidCertificate("16"))
             assertTrue(populatedMovies!!.isValidCertificate("18"))
+        }
+    }
+
+    @Nested
+    inner class PersistenceTests {
+        @Test
+        fun `saving and loading an empty collection in XML doesn't crash app`() {
+            // Saving an empty moviesTest.xml file.
+            val storingMovies = MovieAPI(XMLSerializer(File("moviesTest.xml")))
+            storingMovies.store()
+
+            //Loading the empty moviesTest.xml file into a new object
+            val loadedMovies = MovieAPI(XMLSerializer(File("moviesTest.xml")))
+            loadedMovies.load()
+
+            //Comparing the source of the movies (storingMovies) with the XML loaded movies (loadedMovies)
+            assertEquals(0, storingMovies.numberOfMovies())
+            assertEquals(0, loadedMovies.numberOfMovies())
+            assertEquals(storingMovies.numberOfMovies(), loadedMovies.numberOfMovies())
+        }
+
+        @Test
+        fun `saving and loading a loaded collection in XML doesn't lose data`() {
+            // Storing 3 movies to the MovieAPITest.xml file.
+            val storingMovies = MovieAPI(XMLSerializer(File("moviesTest.xml")))
+            storingMovies.addMovie(paddington!!)
+            storingMovies.addMovie(matrix!!)
+            storingMovies.addMovie(gladiator!!)
+            storingMovies.store()
+
+            //Loading moviesTest.xml into a different collection
+            val loadedMovies = MovieAPI(XMLSerializer(File("moviesTest.xml")))
+            loadedMovies.load()
+
+            //Comparing the source of the movies (storingMovies) with the XML loaded movies (loadedMovies)
+            assertEquals(3, storingMovies.numberOfMovies())
+            assertEquals(3, loadedMovies.numberOfMovies())
+            assertEquals(storingMovies.numberOfMovies(), loadedMovies.numberOfMovies())
+            assertEquals(storingMovies.getMovie(1000), loadedMovies.getMovie(1000))
+            assertEquals(storingMovies.getMovie(1001), loadedMovies.getMovie(1001))
+            assertEquals(storingMovies.getMovie(1002), loadedMovies.getMovie(1002))
+        }
+
+        @Test
+        fun `saving and loading an empty collection in JSON doesn't crash app`() {
+            // Saving an empty moviesTest.json file.
+            val storingMovies = MovieAPI(JSONSerializer(File("moviesTest.json")))
+            storingMovies.store()
+
+            //Loading the empty moviesTest.json file into a new object
+            val loadedMovies = MovieAPI(JSONSerializer(File("moviesTest.json")))
+            loadedMovies.load()
+
+            //Comparing the source of the movies (storingMovies) with the json loaded movies (loadedMovies)
+            assertEquals(0, storingMovies.numberOfMovies())
+            assertEquals(0, loadedMovies.numberOfMovies())
+            assertEquals(storingMovies.numberOfMovies(), loadedMovies.numberOfMovies())
+        }
+
+        @Test
+        fun `saving and loading a loaded collection in JSON doesn't lose data`() {
+            // Storing 3 movies to the moviesTest.json file.
+            val storingMovies = MovieAPI(JSONSerializer(File("moviesTest.json")))
+            storingMovies.addMovie(paddington!!)
+            storingMovies.addMovie(matrix!!)
+            storingMovies.addMovie(gladiator!!)
+            storingMovies.store()
+
+            //Loading moviesTest.json into a different collection
+            val loadedMovies = MovieAPI(JSONSerializer(File("moviesTest.json")))
+            loadedMovies.load()
+
+            //Comparing the source of the movies (storingMovies) with the json loaded movies (loadedMovies)
+            assertEquals(3, storingMovies.numberOfMovies())
+            assertEquals(3, loadedMovies.numberOfMovies())
+            assertEquals(storingMovies.numberOfMovies(), loadedMovies.numberOfMovies())
+            assertEquals(storingMovies.getMovie(0), loadedMovies.getMovie(0))
+            assertEquals(storingMovies.getMovie(1), loadedMovies.getMovie(1))
+            assertEquals(storingMovies.getMovie(2), loadedMovies.getMovie(2))
         }
     }
 }

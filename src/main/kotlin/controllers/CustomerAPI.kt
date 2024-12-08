@@ -1,12 +1,15 @@
 package controllers
 
 import models.Customer
+import persistence.Serializer
 import utils.Utilities as Utils
 import java.time.LocalDate
 import java.time.Period
 
-class CustomerAPI {
-    private val customers = ArrayList<Customer>()
+class CustomerAPI(serializerType: Serializer) {
+
+    private val serializer: Serializer = serializerType
+    private var customers = ArrayList<Customer>()
     private var currentID = 1000
 
     fun addCustomer(customer: Customer): Boolean {
@@ -108,4 +111,15 @@ class CustomerAPI {
 
     fun customerExists(id: Int) =
         customers.find { it.customerID == id } != null
+
+    @Throws(Exception::class)
+    fun load() {
+        @Suppress("UNCHECKED_CAST")
+        customers = serializer.read() as ArrayList<Customer>
+    }
+
+    @Throws(Exception::class)
+    fun store() {
+        serializer.write(customers)
+    }
 }
