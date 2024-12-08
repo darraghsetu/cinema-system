@@ -19,7 +19,7 @@ class ScreeningAPI(serializerType: Serializer) {
             1 to mutableListOf(
                 "A1", "A2", "A3", "A4", "A5",
                 "B1", "B2", "B3", "B4", "B5",
-                "C1", "C2", "C3", "C4", "C5",
+                "C1", "C2", "C3", "C4", "C5"
             ),
             2 to mutableListOf(
                 "A1", "A2", "A3",
@@ -33,7 +33,7 @@ class ScreeningAPI(serializerType: Serializer) {
                 "B1", "B2", "B3", "B4",
                 "C1", "C2", "C3", "C4",
                 "D1", "D2", "D3", "D4"
-            ),
+            )
         )
 
     fun addScreening(screening: Screening): Boolean {
@@ -41,15 +41,15 @@ class ScreeningAPI(serializerType: Serializer) {
         screening.seats = getSeats(screening.theatreID)
         return screenings.add(screening)
     }
-    
+
     fun getScreening(id: Int) =
         screenings.find { it.screeningID == id }
 
     fun getScreeningsByMovie(movieID: Int) =
-        screenings.filter{ it.movie.movieID == movieID }.ifEmpty { null }
+        screenings.filter { it.movie.movieID == movieID }.ifEmpty { null }
 
     fun getScreeningsByDate(date: LocalDate) =
-        screenings.filter{ it.screeningDateTime.toLocalDate().equals(date) }.ifEmpty { null }
+        screenings.filter { it.screeningDateTime.toLocalDate().equals(date) }.ifEmpty { null }
 
     private fun getSeats(theatreID: Int) =
         theatreSeating[theatreID]!!.toMutableList()
@@ -65,42 +65,52 @@ class ScreeningAPI(serializerType: Serializer) {
             screeningToUpdate.theatreID = screening.theatreID
             screeningToUpdate.seats = theatreSeating[screening.theatreID]!!
             true
-        } else false
+        } else {
+            false
+        }
 
     fun deleteScreening(id: Int) =
         if (screeningExists(id)) {
             val screening = getScreening(id)
             screenings.remove(screening)
             screening
-        } else null
+        } else {
+            null
+        }
 
     fun deleteScreeningsByMovie(movieID: Int) =
         if (hasScreeningsByMovie(movieID)) {
             val screeningsToDelete = getScreeningsByMovie(movieID)!!
-            for ( screening in screeningsToDelete ) {
+            for (screening in screeningsToDelete) {
                 screenings.remove(screening)
             }
             screeningsToDelete
-        } else null
+        } else {
+            null
+        }
 
     fun deleteScreeningsByDate(date: LocalDate) =
         if (hasScreeningsByDate(date)) {
             val screeningsToDelete = getScreeningsByDate(date)!!
-            for ( screening in screeningsToDelete ) {
+            for (screening in screeningsToDelete) {
                 screenings.remove(screening)
             }
             screeningsToDelete
-        } else null
+        } else {
+            null
+        }
 
     fun reserveSeats(id: Int, seats: List<String>) =
         if (hasSeatsAvailable(id, seats)) {
             getScreening(id)!!.seats.removeAll(seats)
-        } else false
+        } else {
+            false
+        }
 
     private fun filterScreenings(predicate: (Screening) -> (Boolean)) =
         screenings
-            .filter{ predicate(it) }
-            .map{ it.toString() }
+            .filter { predicate(it) }
+            .map { it.toString() }
             .ifEmpty { null }
 
     fun listAllScreenings() =
@@ -109,7 +119,7 @@ class ScreeningAPI(serializerType: Serializer) {
     fun listAllMovieTitles() =
         screenings
             .sortedBy { it.movie.movieID }
-            .map{ "(ID: ${it.movie.movieID}) ${it.movie.title} (${it.movie.certification})" }
+            .map { "(ID: ${it.movie.movieID}) ${it.movie.title} (${it.movie.certification})" }
             .toSet()
             .toList()
             .ifEmpty { null }
@@ -123,53 +133,53 @@ class ScreeningAPI(serializerType: Serializer) {
     fun listScreeningsByMovieAndDate(movieID: Int, date: LocalDate) =
         filterScreenings {
             it.movie.movieID == movieID &&
-            it.screeningDateTime.toLocalDate() == date
+                it.screeningDateTime.toLocalDate() == date
         }
 
     fun listDayRemainingScreenings() =
-        filterScreenings{
+        filterScreenings {
             it.screeningDateTime.isAfter(LocalDateTime.now()) &&
-            it.screeningDateTime.isBefore(
-                LocalDateTime.of(
-                    LocalDate.now(),
-                    LocalTime.of(0, 0)
-                ).plusDays(1)
-            )
+                it.screeningDateTime.isBefore(
+                    LocalDateTime.of(
+                        LocalDate.now(),
+                        LocalTime.of(0, 0)
+                    ).plusDays(1)
+                )
         }
 
     fun listDayRemainingScreeningsByMovie(movieID: Int) =
-        filterScreenings{
+        filterScreenings {
             it.movie.movieID == movieID &&
-            it.screeningDateTime.isAfter(LocalDateTime.now()) &&
-            it.screeningDateTime.isBefore(
-                LocalDateTime.of(
-                    LocalDate.now(),
-                    LocalTime.of(0, 0)
-                ).plusDays(1)
-            )
+                it.screeningDateTime.isAfter(LocalDateTime.now()) &&
+                it.screeningDateTime.isBefore(
+                    LocalDateTime.of(
+                        LocalDate.now(),
+                        LocalTime.of(0, 0)
+                    ).plusDays(1)
+                )
         }
 
     fun listWeekRemainingScreenings() =
-        filterScreenings{
+        filterScreenings {
             it.screeningDateTime.isAfter(LocalDateTime.now()) &&
-            it.screeningDateTime.isBefore(
-                LocalDateTime.of(
-                    LocalDate.now().with(DayOfWeek.SUNDAY),
-                    LocalTime.of(0, 0)
-                ).plusDays(1)
-            )
+                it.screeningDateTime.isBefore(
+                    LocalDateTime.of(
+                        LocalDate.now().with(DayOfWeek.SUNDAY),
+                        LocalTime.of(0, 0)
+                    ).plusDays(1)
+                )
         }
 
     fun listWeekRemainingScreeningsByMovie(movieID: Int) =
-        filterScreenings{
+        filterScreenings {
             it.movie.movieID == movieID &&
-            it.screeningDateTime.isAfter(LocalDateTime.now()) &&
-            it.screeningDateTime.isBefore(
-                LocalDateTime.of(
-                    LocalDate.now().with(DayOfWeek.SUNDAY),
-                    LocalTime.of(0, 0)
-                ).plusDays(1)
-            )
+                it.screeningDateTime.isAfter(LocalDateTime.now()) &&
+                it.screeningDateTime.isBefore(
+                    LocalDateTime.of(
+                        LocalDate.now().with(DayOfWeek.SUNDAY),
+                        LocalTime.of(0, 0)
+                    ).plusDays(1)
+                )
         }
 
     fun listAvailableSeats(id: Int) =
@@ -203,9 +213,11 @@ class ScreeningAPI(serializerType: Serializer) {
         getScreening(id)?.seats?.size ?: 0
 
     fun numberOfSoldSeats(id: Int) =
-        if (screeningExists(id))
+        if (screeningExists(id)) {
             theatreSeating[getScreening(id)!!.theatreID]!!.size - getScreening(id)!!.seats.size
-        else 0
+        } else {
+            0
+        }
 
     fun hasScreenings() =
         numberOfScreenings() > 0
@@ -237,11 +249,11 @@ class ScreeningAPI(serializerType: Serializer) {
     fun screeningExists(id: Int) =
         screenings.find { it.screeningID == id } != null
 
-    fun theatreExists(theatreID : Int) =
+    fun theatreExists(theatreID: Int) =
         theatreSeating.containsKey(theatreID)
 
     fun availableDateTime(datetime: LocalDateTime, runtime: Int, theatreID: Int): Boolean {
-        if(
+        if (
             runtime > 0 &&
             theatreExists(theatreID) &&
             datetime.toLocalTime().isAfter(openingTime) &&
@@ -251,7 +263,7 @@ class ScreeningAPI(serializerType: Serializer) {
                 screenings
                     .filter {
                         it.screeningDateTime.toLocalDate() == datetime.toLocalDate() &&
-                                it.theatreID == theatreID
+                            it.theatreID == theatreID
                     }
 
             if (sameDateAndTheatre.isNotEmpty()) {
@@ -266,29 +278,34 @@ class ScreeningAPI(serializerType: Serializer) {
                         s.movie.runtime.toLong() + theatreTurnaroundInMinutes
                     )
 
-
                     if (
-                    // 3 possible fail cases
+                        // 3 possible fail cases
                         (
                             // 1. Having a start time before another screening has ended
                             requestedStartTime.isAfter(bookedStartTime) &&
-                            requestedStartTime.isBefore(bookedEndTime)
-                        ) ||
+                                requestedStartTime.isBefore(bookedEndTime)
+                            ) ||
                         (
                             // 2. Having an end time after another screening has started
                             requestedEndTime.isBefore(bookedEndTime) &&
-                            requestedEndTime.isAfter(bookedStartTime)
-                        ) ||
+                                requestedEndTime.isAfter(bookedStartTime)
+                            ) ||
                         (
                             // 3. Starting and ending between another screening
                             requestedStartTime.isAfter(bookedStartTime) &&
-                            requestedEndTime.isBefore(bookedEndTime)
-                        )
-                    ) return false // Clash, not available
+                                requestedEndTime.isBefore(bookedEndTime)
+                            )
+                    ) {
+                        return false // Clash, not available
+                    }
                 }
                 return true // No clashes found
-            } else return true // No screenings to clash with, available
-        } else return false
+            } else {
+                return true // No screenings to clash with, available
+            }
+        } else {
+            return false
+        }
     }
 
     @Throws(Exception::class)

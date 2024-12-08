@@ -4,12 +4,16 @@ import models.Booking
 import models.Customer
 import models.Movie
 import models.Screening
-import persistence.XMLSerializer
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import persistence.XMLSerializer
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -18,16 +22,16 @@ import java.time.LocalTime
 class BookingAPITest {
     private var paddington: Movie? = null
     private var gladiator: Movie? = null
-    
+
     private var screening1: Screening? = null
     private var screening2: Screening? = null
     private var screening3: Screening? = null
     private var screening4: Screening? = null
-    
+
     private var customer1: Customer? = null
     private var customer2: Customer? = null
     private var customer3: Customer? = null
-    
+
     private var booking1: Booking? = null
     private var booking2: Booking? = null
     private var booking3: Booking? = null
@@ -38,7 +42,7 @@ class BookingAPITest {
     private var customers: CustomerAPI? = null
     private var emptyBookings: BookingAPI? = null
     private var populatedBookings: BookingAPI? = null
-    
+
     @BeforeEach
     fun setup() {
         movies = MovieAPI(XMLSerializer(File("BookingAPITest.xml")))
@@ -46,32 +50,40 @@ class BookingAPITest {
         customers = CustomerAPI(XMLSerializer(File("BookingAPITest.xml")))
         emptyBookings = BookingAPI(XMLSerializer(File("BookingAPITest.xml")))
         populatedBookings = BookingAPI(XMLSerializer(File("BookingAPITest.xml")))
-        
+
         // Movies
         movies!!.addMovie(Movie("Paddington", "Paul King", 95, "G"))
         movies!!.addMovie(Movie("Gladiator", "Ridley Scott", 155, "16"))
         paddington = movies!!.getMovie(1000)
         gladiator = movies!!.getMovie(1001)
-        
+
         // Screenings
         screenings!!.addScreening(
             Screening(
-                paddington!!, LocalDateTime.of(LocalDate.now(), LocalTime.of(16, 0)), theatreID = 1
+                paddington!!,
+                LocalDateTime.of(LocalDate.now(), LocalTime.of(16, 0)),
+                theatreID = 1
             )
         )
         screenings!!.addScreening(
             Screening(
-                paddington!!, LocalDateTime.of(LocalDate.now(), LocalTime.of(16, 0)).plusDays(1), theatreID = 2
+                paddington!!,
+                LocalDateTime.of(LocalDate.now(), LocalTime.of(16, 0)).plusDays(1),
+                theatreID = 2
             )
         )
         screenings!!.addScreening(
             Screening(
-                gladiator!!, LocalDateTime.of(LocalDate.now(), LocalTime.of(21, 0)), theatreID = 1
+                gladiator!!,
+                LocalDateTime.of(LocalDate.now(), LocalTime.of(21, 0)),
+                theatreID = 1
             )
         )
         screenings!!.addScreening(
             Screening(
-                gladiator!!, LocalDateTime.of(LocalDate.now(), LocalTime.of(21, 0)).plusDays(1), theatreID = 2
+                gladiator!!,
+                LocalDateTime.of(LocalDate.now(), LocalTime.of(21, 0)).plusDays(1),
+                theatreID = 2
             )
         )
         screening1 = screenings!!.getScreening(1000)
@@ -86,7 +98,7 @@ class BookingAPITest {
         customer1 = customers!!.getCustomer(1000)
         customer2 = customers!!.getCustomer(1001)
         customer3 = customers!!.getCustomer(1002)
-        
+
         // Bookings
         populatedBookings!!.addBooking(Booking(screening1!!, customer1!!, 1, 10.00, listOf("A1")))
         populatedBookings!!.addBooking(Booking(screening2!!, customer2!!, 2, 19.50, listOf("B1, B2")))
@@ -220,7 +232,7 @@ class BookingAPITest {
             assertTrue(populatedBookings!!.hasActiveBookings())
 
             val startID = 1000
-            for(i in startID until (startID + populatedBookings!!.numberOfBookings())){
+            for (i in startID until (startID + populatedBookings!!.numberOfBookings())) {
                 populatedBookings!!.cancelBooking(i)
             }
 

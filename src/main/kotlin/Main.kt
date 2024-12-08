@@ -1,20 +1,20 @@
-import models.Customer
-import models.Booking
-import models.Movie
-import models.Screening
 import controllers.BookingAPI
 import controllers.CustomerAPI
 import controllers.MovieAPI
 import controllers.ScreeningAPI
+import models.Booking
+import models.Customer
+import models.Movie
+import models.Screening
 import persistence.JSONSerializer
 import persistence.XMLSerializer
-import utils.ScannerInput as In
-import utils.MenuUtilities as Menu
-import utils.Utilities as Utils
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import utils.MenuUtilities as Menu
+import utils.ScannerInput as In
+import utils.Utilities as Utils
 
 private lateinit var bookingAPI: BookingAPI
 private lateinit var customerAPI: CustomerAPI
@@ -37,12 +37,12 @@ fun main() {
 }
 
 fun runMenu(menuPrinter: () -> (Unit), options: List<() -> (Unit)>) {
-    do{
+    do {
         menuPrinter()
         val option = getUserOption()
 
         if (option in 1..options.size) {
-            options[option-1]()
+            options[option - 1]()
         } else if (option != 0) {
             println(" Invalid selection: $option")
             println()
@@ -58,7 +58,7 @@ fun mainMenu() =
             ::moviesMenu,
             ::screeningsMenu,
             ::customersMenu,
-            ::reportsMenu,
+            ::reportsMenu
         )
     )
 
@@ -67,7 +67,7 @@ fun bookingsMenu() =
         Menu::printBookingsMenu,
         listOf(
             ::addBooking,
-            ::viewBookingsMenu,
+            ::viewBookingsMenu
         )
     )
 
@@ -78,7 +78,7 @@ fun moviesMenu() =
             ::addMovie,
             ::viewMovie,
             ::listAllMovies,
-            ::listAllMoviesByCert,
+            ::listAllMoviesByCert
         )
     )
 
@@ -89,7 +89,7 @@ fun screeningsMenu() =
             ::addScreening,
             ::deleteScreeningMenu,
             ::updateScreeningMenu,
-            ::viewScreeningsMenu,
+            ::viewScreeningsMenu
         )
     )
 
@@ -100,7 +100,7 @@ fun customersMenu() =
             ::addCustomer,
             ::deleteCustomer,
             ::updateCustomerMenu,
-            ::viewCustomersMenu,
+            ::viewCustomersMenu
         )
     )
 
@@ -117,10 +117,12 @@ fun viewBookingsMenu() =
                 ::listAllCancelledBookings,
                 ::listAllBookingsByCustomer,
                 ::listAllBookingsByScreening,
-                ::listAllBookingsByMovie,
+                ::listAllBookingsByMovie
             )
         )
-    } else println(" No bookings found")
+    } else {
+        println(" No bookings found")
+    }
 
 fun deleteScreeningMenu() =
     if (screeningAPI.hasScreenings()) {
@@ -131,10 +133,12 @@ fun deleteScreeningMenu() =
                 ::deleteScreeningByMovie,
                 ::deleteScreeningByDate,
                 ::deleteAllScreeningsByMovie,
-                ::deleteAllScreeningsByDate,
+                ::deleteAllScreeningsByDate
             )
         )
-    } else println(" No screenings found")
+    } else {
+        println(" No screenings found")
+    }
 
 fun updateScreeningMenu() =
     if (screeningAPI.hasScreenings()) {
@@ -144,10 +148,12 @@ fun updateScreeningMenu() =
                 ::updateScreeningMovie,
                 ::updateScreeningDateTime,
                 ::updateScreeningTheatre,
-                ::updateScreening,
+                ::updateScreening
             )
         )
-    } else println(" No screenings found")
+    } else {
+        println(" No screenings found")
+    }
 
 fun viewScreeningsMenu() =
     if (screeningAPI.hasScreenings()) {
@@ -161,10 +167,12 @@ fun viewScreeningsMenu() =
                 ::listDayRemainingScreenings,
                 ::listDayRemainingScreeningsByMovie,
                 ::listWeekRemainingScreenings,
-                ::listWeekRemainingScreeningsByMovie,
+                ::listWeekRemainingScreeningsByMovie
             )
         )
-    } else println(" No screenings found")
+    } else {
+        println(" No screenings found")
+    }
 
 fun updateCustomerMenu() =
     if (customerAPI.hasCustomers()) {
@@ -175,10 +183,12 @@ fun updateCustomerMenu() =
                 ::updateCustomerLName,
                 ::updateCustomerEmail,
                 ::updateCustomerDOB,
-                ::updateCustomer,
+                ::updateCustomer
             )
         )
-    } else println(" No customers found")
+    } else {
+        println(" No customers found")
+    }
 
 fun viewCustomersMenu() =
     if (customerAPI.hasCustomers()) {
@@ -191,10 +201,12 @@ fun viewCustomersMenu() =
                 ::listAllCustomersByAge,
                 ::listAllCustomersByAgeRange,
                 ::listAllAdultCustomers,
-                ::listAllChildCustomers,
+                ::listAllChildCustomers
             )
         )
-    } else println(" No customers found")
+    } else {
+        println(" No customers found")
+    }
 
 // Bookings
 
@@ -215,68 +227,89 @@ fun addBooking() =
                                 val seatsList = helper.seatCheck(screeningID)
                                 if (screeningAPI.hasSeatsAvailable(screeningID, seatsList)) {
                                     val customer = helper.getCustomer()
-                                    if ( customer != null ) {
+                                    if (customer != null) {
                                         val totalPrice = helper.calculatePrice(numberOfTickets)
-                                        val booking = 
-                                            bookingAPI.addBooking(
-                                                Booking(screening, customer, numberOfTickets, totalPrice, seatsList)
-                                            )
+                                        val booking = bookingAPI.addBooking(
+                                            Booking(screening, customer, numberOfTickets, totalPrice, seatsList)
+                                        )
                                         if (booking != null && screeningAPI.reserveSeats(screeningID, seatsList)) {
                                             println(" Booking has been successful:")
                                             println(" $booking")
-                                        } else println(" Booking has not been successful")
-                                    } else println(" Invalid selection")
-                                } else println(" Invalid seats chosen")
-                            } else println(" Invalid number of tickets chosen")
-                        } else println(" No seats available")
-                    } else println(" Must meet the requirements for ${screening.movie.certification}")
-                } else println(" No screening found of ${movieAPI.getMovie(movieID)!!.title} for screening ID: $screeningID")
-            } else println(" No screening found for screening ID: $screeningID")
-        } else println(" No screenings found for movie ID: $movieID")
-    } else println(" No screenings found")
+                                        } else {
+                                            println(" Booking has not been successful")
+                                        }
+                                    } else {
+                                        println(" Invalid selection")
+                                    }
+                                } else {
+                                    println(" Invalid seats chosen")
+                                }
+                            } else {
+                                println(" Invalid number of tickets chosen")
+                            }
+                        } else {
+                            println(" No seats available")
+                        }
+                    } else {
+                        println(" Must meet the requirements for ${screening.movie.certification}")
+                    }
+                } else {
+                    println(" No screening found of ${movieAPI.getMovie(movieID)!!.title} for screening ID: $screeningID")
+                }
+            } else {
+                println(" No screening found for screening ID: $screeningID")
+            }
+        } else {
+            println(" No screenings found for movie ID: $movieID")
+        }
+    } else {
+        println(" No screenings found")
+    }
 
-class BookingHelperFunctions {
-    internal fun getMovieID(): Int {
+internal class BookingHelperFunctions {
+    fun getMovieID(): Int {
         val movieTitles = screeningAPI.listAllMovieTitles()!!
         Utils.printStringList(movieTitles)
         return In.readNextInt(" Movie ID: ")
     }
-    
-    internal fun getScreeningID(movieID: Int): Int {
+
+    fun getScreeningID(movieID: Int): Int {
         val movieScreenings = screeningAPI.listScreeningsByMovie(movieID)!!
         Utils.printStringList(movieScreenings)
         return In.readNextInt(" Screening ID: ")
     }
-    
-    internal fun getScreening(movieID: Int, screeningID: Int) =
-        if (screeningAPI.listScreeningsByMovie(movieID)!!.contains(screeningAPI.getScreening(screeningID).toString()))
+
+    fun getScreening(movieID: Int, screeningID: Int) =
+        if (screeningAPI.listScreeningsByMovie(movieID)!!.contains(screeningAPI.getScreening(screeningID).toString())) {
             screeningAPI.getScreening(screeningID)!!
-        else null
-    
-    internal fun underAgeCheck(certification: String): Boolean {
+        } else {
+            null
+        }
+
+    fun underAgeCheck(certification: String): Boolean {
         val restrictedCertifications = listOf("12A", "15A", "16", "18")
         var underage = false
         if (certification in restrictedCertifications) {
             underage = In.readNextLine(
                 " Do all customers meet the age/parental supervision requirement" +
-                        " for this certification (${certification}? (Y/N): \n "
+                    " for this certification ($certification? (Y/N): \n "
             ).uppercase() != "Y"
         }
         return underage
     }
-    
-    internal fun numTickets(screeningID: Int): Int {
+
+    fun numTickets(screeningID: Int): Int {
         println(" ${screeningAPI.numberOfAvailableSeats(screeningID)} available seats")
         return In.readNextInt(" Number of tickets: ")
     }
-    
-    internal fun seatCheck(screeningID: Int): List<String> {
+
+    fun seatCheck(screeningID: Int): List<String> {
         Utils.printStringList(screeningAPI.listAvailableSeats(screeningID)!!)
         val seats = In.readNextLine(" Please choose seats (separated by commas): ")
         return seats.split(",").map { it.trim().uppercase() }.toList()
     }
-    
-    internal fun getCustomer(): Customer? {
+
+    fun getCustomer(): Customer? {
         val isCustomer = In.readNextLine(
             " Is this customer registered with this cinema? (Y/N): \n "
         ).uppercase()
@@ -301,22 +334,31 @@ class BookingHelperFunctions {
         }
         return customer
     }
-    
-    internal fun calculatePrice(numberOfTickets: Int) =
+
+    fun calculatePrice(numberOfTickets: Int) =
         numberOfTickets.toDouble() * 10.0
 }
 
 fun listAllBookings() =
-    if (bookingAPI.hasBookings()) Utils.printStringList(bookingAPI.listAllBookings()!!)
-    else println(" No bookings found")
+    if (bookingAPI.hasBookings()) {
+        Utils.printStringList(bookingAPI.listAllBookings()!!)
+    } else {
+        println(" No bookings found")
+    }
 
 fun listAllActiveBookings() =
-    if (bookingAPI.hasActiveBookings()) Utils.printStringList(bookingAPI.listAllActiveBookings()!!)
-    else println(" No active bookings found")
+    if (bookingAPI.hasActiveBookings()) {
+        Utils.printStringList(bookingAPI.listAllActiveBookings()!!)
+    } else {
+        println(" No active bookings found")
+    }
 
 fun listAllCancelledBookings() =
-    if (bookingAPI.hasCancelledBookings()) Utils.printStringList(bookingAPI.listAllCancelledBookings()!!)
-    else println(" No cancelled bookings found")
+    if (bookingAPI.hasCancelledBookings()) {
+        Utils.printStringList(bookingAPI.listAllCancelledBookings()!!)
+    } else {
+        println(" No cancelled bookings found")
+    }
 
 fun listAllBookingsByCustomer() =
     if (customerAPI.hasCustomers()) {
@@ -325,9 +367,15 @@ fun listAllBookingsByCustomer() =
         if (customerAPI.customerExists(customerID)) {
             if (bookingAPI.hasCustomer(customerID)) {
                 Utils.printStringList(bookingAPI.listActiveBookingsByCustomer(customerID)!!)
-            } else println(" No bookings found for customer ID: $customerID")
-        } else println(" No customer found for customer ID: $customerID")
-    } else println(" No customers found")
+            } else {
+                println(" No bookings found for customer ID: $customerID")
+            }
+        } else {
+            println(" No customer found for customer ID: $customerID")
+        }
+    } else {
+        println(" No customers found")
+    }
 
 fun listAllBookingsByScreening() =
     if (screeningAPI.hasScreenings()) {
@@ -336,9 +384,15 @@ fun listAllBookingsByScreening() =
         if (screeningAPI.screeningExists(screeningID)) {
             if (bookingAPI.hasScreening(screeningID)) {
                 Utils.printStringList(bookingAPI.listActiveBookingsByScreening(screeningID)!!)
-            } else println(" No bookings found for screening ID: $screeningID")
-        } else println(" No screenings found for screening ID: $screeningID")
-    } else println(" No screenings found")
+            } else {
+                println(" No bookings found for screening ID: $screeningID")
+            }
+        } else {
+            println(" No screenings found for screening ID: $screeningID")
+        }
+    } else {
+        println(" No screenings found")
+    }
 
 fun listAllBookingsByMovie() =
     if (movieAPI.hasMovies()) {
@@ -347,9 +401,15 @@ fun listAllBookingsByMovie() =
         if (movieAPI.movieExists(movieID)) {
             if (bookingAPI.listActiveBookingsByMovie(movieID) != null) {
                 Utils.printStringList(bookingAPI.listActiveBookingsByMovie(movieID)!!)
-            } else println(" No bookings found for movie ID: $movieID")
-        } else println(" No movie found for movie ID: $movieID")
-    } else println(" No movies found")
+            } else {
+                println(" No bookings found for movie ID: $movieID")
+            }
+        } else {
+            println(" No movie found for movie ID: $movieID")
+        }
+    } else {
+        println(" No movies found")
+    }
 
 // Movies
 
@@ -362,12 +422,15 @@ fun addMovie() {
     while (!validCert) {
         certification = In.readNextLine(" Certification: ")
         validCert = movieAPI.isValidCertificate(certification)
-        if (!validCert)
+        if (!validCert) {
             println(" Certification must be: G, PG, 12A, 15A, 16 or 18")
+        }
     }
-    if (movieAPI.addMovie(Movie(title, director, runtime, certification)))
+    if (movieAPI.addMovie(Movie(title, director, runtime, certification))) {
         println(" Movie has been successfully added")
-    else println(" Movie has not been added")
+    } else {
+        println(" Movie has not been added")
+    }
 }
 
 fun viewMovie() =
@@ -375,19 +438,28 @@ fun viewMovie() =
         Utils.printStringList(movieAPI.listAllTitles()!!)
         val movieID = In.readNextInt(" ID: ")
         println(movieAPI.getMovie(movieID) ?: " No movie found for ID: $movieID")
-    } else println(" No movies found")
+    } else {
+        println(" No movies found")
+    }
 
 fun listAllMovies() =
-    if (movieAPI.hasMovies()) Utils.printStringList(movieAPI.listAllMovies()!!)
-    else println(" No movies found")
+    if (movieAPI.hasMovies()) {
+        Utils.printStringList(movieAPI.listAllMovies()!!)
+    } else {
+        println(" No movies found")
+    }
 
 fun listAllMoviesByCert() =
     if (movieAPI.hasMovies()) {
         val cert = In.readNextLine(" Certification: ")
-        if (movieAPI.hasCertificate(cert))
+        if (movieAPI.hasCertificate(cert)) {
             println(movieAPI.listMoviesByCertification(cert))
-        else println(" No movies for certificate: $cert")
-    } else println(" No movies found")
+        } else {
+            println(" No movies for certificate: $cert")
+        }
+    } else {
+        println(" No movies found")
+    }
 
 // Screenings
 
@@ -406,11 +478,21 @@ fun addScreening() =
                 if (screeningAPI.availableDateTime(dateTime, movie.runtime, theatreID)) {
                     if (screeningAPI.addScreening(Screening(movie, dateTime, theatreID))) {
                         println(" Screening has been successfully added")
-                    } else println(" Screening has not been added")
-                } else println(" Theatre $theatreID is not available for screening at that date and time")
-            } else println(" Theatre $theatreID does not exist")
-        } else println(" No movie found for ID: $movieID")
-    } else println(" No movies to screen")
+                    } else {
+                        println(" Screening has not been added")
+                    }
+                } else {
+                    println(" Theatre $theatreID is not available for screening at that date and time")
+                }
+            } else {
+                println(" Theatre $theatreID does not exist")
+            }
+        } else {
+            println(" No movie found for ID: $movieID")
+        }
+    } else {
+        println(" No movies to screen")
+    }
 
 fun deleteScreening() =
     if (screeningAPI.hasScreenings()) {
@@ -419,8 +501,12 @@ fun deleteScreening() =
         if (screening != null) {
             println(" Screening has been successfully deleted:")
             println(" $screening")
-        } else println(" Screening has not been deleted")
-    } else println(" No screenings found")
+        } else {
+            println(" Screening has not been deleted")
+        }
+    } else {
+        println(" No screenings found")
+    }
 
 fun deleteScreeningByMovie() =
     if (movieAPI.hasMovies()) {
@@ -436,16 +522,28 @@ fun deleteScreeningByMovie() =
                         if (screeningAPI.deleteScreening(screeningID) != null) {
                             println(" Screening has been successfully deleted:")
                             println(" $screening")
-                        } else println(" Screening has not been deleted")
-                    } else println(
-                        " Invalid screening ID: $screeningID for ${screening.movie.title}"
-                    )
-                } else println(" No screening found for ID: $screeningID")
-            } else println(
-                " No screenings found for ${movieAPI.getMovie(movieID)!!.title}"
-            )
-        } else println(" No movie found for ID: $movieID")
-    } else println(" No movies found")
+                        } else {
+                            println(" Screening has not been deleted")
+                        }
+                    } else {
+                        println(
+                            " Invalid screening ID: $screeningID for ${screening.movie.title}"
+                        )
+                    }
+                } else {
+                    println(" No screening found for ID: $screeningID")
+                }
+            } else {
+                println(
+                    " No screenings found for ${movieAPI.getMovie(movieID)!!.title}"
+                )
+            }
+        } else {
+            println(" No movie found for ID: $movieID")
+        }
+    } else {
+        println(" No movies found")
+    }
 
 fun deleteScreeningByDate() =
     if (screeningAPI.hasScreenings()) {
@@ -459,16 +557,26 @@ fun deleteScreeningByDate() =
                     if (screeningAPI.deleteScreening(screeningID) != null) {
                         println(" Screening has been successfully deleted:")
                         println(" $screening")
-                    } else println(" Screening has not been deleted")
-                } else println(
-                    " Invalid screening ID: $screeningID for " +
-                    date.format(dateFormatter),
-                )
-            } else println(" No screening found for ID: $screeningID")
-        } else println(
-            " No screenings found for ${date.format(dateFormatter)}"
-        )
-    } else println(" No screenings found")
+                    } else {
+                        println(" Screening has not been deleted")
+                    }
+                } else {
+                    println(
+                        " Invalid screening ID: $screeningID for " +
+                            date.format(dateFormatter)
+                    )
+                }
+            } else {
+                println(" No screening found for ID: $screeningID")
+            }
+        } else {
+            println(
+                " No screenings found for ${date.format(dateFormatter)}"
+            )
+        }
+    } else {
+        println(" No screenings found")
+    }
 
 fun deleteAllScreeningsByMovie() =
     if (movieAPI.hasMovies()) {
@@ -479,25 +587,40 @@ fun deleteAllScreeningsByMovie() =
                 val numberOfScreenings = screeningAPI.numberOfScreeningsByMovie(movieID)
                 if (screeningAPI.deleteScreeningsByMovie(movieID) != null) {
                     println(" $numberOfScreenings screenings for ${movieAPI.getMovie(movieID)!!.title} have been deleted")
-                } else println(" Screenings have not been deleted")
-            } else println(" No screenings found for ${movieAPI.getMovie(movieID)!!.title}")
-        } else println(" No movie found for ID: $movieID")
-    } else println(" No movies found")
+                } else {
+                    println(" Screenings have not been deleted")
+                }
+            } else {
+                println(" No screenings found for ${movieAPI.getMovie(movieID)!!.title}")
+            }
+        } else {
+            println(" No movie found for ID: $movieID")
+        }
+    } else {
+        println(" No movies found")
+    }
 
 fun deleteAllScreeningsByDate() =
     if (screeningAPI.hasScreenings()) {
-            val date = Utils.getValidDate(datePattern, datePattern)
-            if (screeningAPI.hasScreeningsByDate(date)) {
-                val numberOfScreenings = screeningAPI.numberOfScreeningsByDate(date)
-                if (screeningAPI.deleteScreeningsByDate(date) != null) {
-                    println(" $numberOfScreenings screenings on ${date.format(dateFormatter)} " +
-                            " have been successfully deleted"
-                    )
-                } else println(" Screenings have not been deleted")
-            } else println(
+        val date = Utils.getValidDate(datePattern, datePattern)
+        if (screeningAPI.hasScreeningsByDate(date)) {
+            val numberOfScreenings = screeningAPI.numberOfScreeningsByDate(date)
+            if (screeningAPI.deleteScreeningsByDate(date) != null) {
+                println(
+                    " $numberOfScreenings screenings on ${date.format(dateFormatter)} " +
+                        " have been successfully deleted"
+                )
+            } else {
+                println(" Screenings have not been deleted")
+            }
+        } else {
+            println(
                 " No screenings found for ${date.format(dateFormatter)}"
             )
-    } else println(" No screenings found")
+        }
+    } else {
+        println(" No screenings found")
+    }
 
 fun updateScreening() =
     if (screeningAPI.hasScreenings()) {
@@ -518,15 +641,27 @@ fun updateScreening() =
                         if (screeningAPI.updateScreening(screeningID, newScreening)) {
                             println(" Screening has been successfully updated:")
                             println(" ${screeningAPI.getScreening(screeningID)}")
-                        } else println(" Screening has not been updated")
-                    } else println(
-                        " Theatre $theatreID is not available on " +
-                        screeningDatetime.format(dateTimeFormatter)
-                    )
-                } else println(" No theatre found for ID: $theatreID")
-            } else println(" No movie found for ID: $movieID")
-        } else println(" No screening found for ID: $screeningID")
-    } else println(" No screenings found")
+                        } else {
+                            println(" Screening has not been updated")
+                        }
+                    } else {
+                        println(
+                            " Theatre $theatreID is not available on " +
+                                screeningDatetime.format(dateTimeFormatter)
+                        )
+                    }
+                } else {
+                    println(" No theatre found for ID: $theatreID")
+                }
+            } else {
+                println(" No movie found for ID: $movieID")
+            }
+        } else {
+            println(" No screening found for ID: $screeningID")
+        }
+    } else {
+        println(" No screenings found")
+    }
 
 fun updateScreeningMovie() {
     if (screeningAPI.hasScreenings()) {
@@ -542,10 +677,18 @@ fun updateScreeningMovie() {
                 if (screeningAPI.updateScreening(screeningID, newScreening)) {
                     println(" Screening has been successfully updated:")
                     println(" ${screeningAPI.getScreening(screeningID)}")
-                } else println(" Screening has not been updated")
-            } else println(" No movie found for ID: $movieID")
-        } else println(" No screening found for ID: $screeningID")
-    } else println(" No screenings found")
+                } else {
+                    println(" Screening has not been updated")
+                }
+            } else {
+                println(" No movie found for ID: $movieID")
+            }
+        } else {
+            println(" No screening found for ID: $screeningID")
+        }
+    } else {
+        println(" No screenings found")
+    }
 }
 
 fun updateScreeningDateTime() {
@@ -562,12 +705,21 @@ fun updateScreeningDateTime() {
                 if (screeningAPI.updateScreening(screeningID, newScreening)) {
                     println(" Screening has been successfully updated:")
                     println(" ${screeningAPI.getScreening(screeningID)}")
-                } else println(" Screening has not been updated")
-            } else println(" Theatre ${screening.theatreID} is not available for screening on " +
-                    screeningDatetime.format(dateTimeFormatter)
-            )
-        } else println(" No screening found for ID: $screeningID")
-    } else println(" No screenings found")
+                } else {
+                    println(" Screening has not been updated")
+                }
+            } else {
+                println(
+                    " Theatre ${screening.theatreID} is not available for screening on " +
+                        screeningDatetime.format(dateTimeFormatter)
+                )
+            }
+        } else {
+            println(" No screening found for ID: $screeningID")
+        }
+    } else {
+        println(" No screenings found")
+    }
 }
 
 fun updateScreeningTheatre() {
@@ -582,16 +734,24 @@ fun updateScreeningTheatre() {
                 if (screeningAPI.updateScreening(screeningID, newScreening)) {
                     println(" Screening has been successfully updated:")
                     println(" ${screeningAPI.getScreening(screeningID)}")
-                } else println(" Screening has been not been updated")
-            } else println(" Theatre not found for ID: $theatreID")
-        } else println(" No screening found for ID: $screeningID")
+                } else {
+                    println(" Screening has been not been updated")
+                }
+            } else {
+                println(" Theatre not found for ID: $theatreID")
+            }
+        } else {
+            println(" No screening found for ID: $screeningID")
+        }
     }
 }
 
 fun listAllScreenings() =
     if (screeningAPI.hasScreenings()) {
         Utils.printStringList(screeningAPI.listAllScreenings()!!)
-    } else println(" No screenings found")
+    } else {
+        println(" No screenings found")
+    }
 
 fun listScreeningsByMovie() =
     if (movieAPI.hasMovies()) {
@@ -600,17 +760,27 @@ fun listScreeningsByMovie() =
         if (movieAPI.movieExists(movieID)) {
             if (screeningAPI.hasScreeningsByMovie(movieID)) {
                 Utils.printStringList(screeningAPI.listScreeningsByMovie(movieID)!!)
-            } else println(" No screenings found for ${movieAPI.getMovie(movieID)!!.title}")
-        } else println(" No movie found for ID: $movieID")
-    } else println(" No movies found")
+            } else {
+                println(" No screenings found for ${movieAPI.getMovie(movieID)!!.title}")
+            }
+        } else {
+            println(" No movie found for ID: $movieID")
+        }
+    } else {
+        println(" No movies found")
+    }
 
 fun listScreeningsByDate() =
     if (movieAPI.hasMovies()) {
         val date = Utils.getValidDate(datePrompt, datePattern)
         if (screeningAPI.hasScreeningsByDate(date)) {
             Utils.printStringList(screeningAPI.listScreeningsByDate(date)!!)
-        } else println(" No screenings for ${date.format(dateFormatter)}")
-    } else println(" No movies found")
+        } else {
+            println(" No screenings for ${date.format(dateFormatter)}")
+        }
+    } else {
+        println(" No movies found")
+    }
 
 fun listScreeningsByMovieAndDate() =
     if (movieAPI.hasMovies()) {
@@ -622,56 +792,78 @@ fun listScreeningsByMovieAndDate() =
                 Utils.printStringList(
                     screeningAPI.listScreeningsByMovieAndDate(movieID, date)!!
                 )
-            } else println(
-                " No screenings found for ${movieAPI.getMovie(movieID)!!.title} on " +
-                date.format(dateFormatter)
-            )
-        } else println(" No movie found for ID: $movieID")
-    } else println(" No movies found")
+            } else {
+                println(
+                    " No screenings found for ${movieAPI.getMovie(movieID)!!.title} on " +
+                        date.format(dateFormatter)
+                )
+            }
+        } else {
+            println(" No movie found for ID: $movieID")
+        }
+    } else {
+        println(" No movies found")
+    }
 
 fun listDayRemainingScreenings() =
     if (screeningAPI.hasDayRemainingScreenings()) {
         Utils.printStringList(
             screeningAPI.listDayRemainingScreenings()!!
         )
-    } else println(" No remaining screenings today")
+    } else {
+        println(" No remaining screenings today")
+    }
 
 fun listDayRemainingScreeningsByMovie() =
     if (movieAPI.hasMovies()) {
         Utils.printStringList(movieAPI.listAllTitles()!!)
         val movieID = In.readNextInt(" Movie ID: ")
         if (movieAPI.movieExists(movieID)) {
-            if (screeningAPI.hasDayRemainingScreeningsByMovie(movieID))
+            if (screeningAPI.hasDayRemainingScreeningsByMovie(movieID)) {
                 Utils.printStringList(
                     screeningAPI
                         .listDayRemainingScreeningsByMovie(movieID)!!
                 )
-            else println(
-                " No remaining screenings for ${movieAPI.getMovie(movieID)!!.title} today"
-            )
-        } else println(" No movie found for ID: $movieID")
-    } else println(" No movies found")
+            } else {
+                println(
+                    " No remaining screenings for ${movieAPI.getMovie(movieID)!!.title} today"
+                )
+            }
+        } else {
+            println(" No movie found for ID: $movieID")
+        }
+    } else {
+        println(" No movies found")
+    }
 
 fun listWeekRemainingScreenings() =
     if (screeningAPI.hasWeekRemainingScreenings()) {
         Utils.printStringList(screeningAPI.listWeekRemainingScreenings()!!)
-    } else println(" No remaining screenings this week")
+    } else {
+        println(" No remaining screenings this week")
+    }
 
 fun listWeekRemainingScreeningsByMovie() =
     if (movieAPI.hasMovies()) {
         Utils.printStringList(movieAPI.listAllTitles()!!)
         val movieID = In.readNextInt(" Movie ID: ")
         if (movieAPI.movieExists(movieID)) {
-            if (screeningAPI.hasWeekRemainingScreeningsByMovie(movieID))
+            if (screeningAPI.hasWeekRemainingScreeningsByMovie(movieID)) {
                 Utils.printStringList(
                     screeningAPI
                         .listWeekRemainingScreeningsByMovie(movieID)!!
                 )
-            else println(
-                " No remaining screenings for ${movieAPI.getMovie(movieID)!!.title} this week"
-            )
-        } else println(" No movie found for ID: $movieID")
-    } else println(" No movies found")
+            } else {
+                println(
+                    " No remaining screenings for ${movieAPI.getMovie(movieID)!!.title} this week"
+                )
+            }
+        } else {
+            println(" No movie found for ID: $movieID")
+        }
+    } else {
+        println(" No movies found")
+    }
 
 // Customers
 
@@ -681,8 +873,10 @@ fun addCustomer() {
     val email = Utils.getValidEmail(" Email: ")
     val dob = Utils.getValidDate(" Date of birth ($datePattern): ", datePattern)
     if (customerAPI.addCustomer(Customer(fName, lName, email, dob))) {
-            println(" Customer has been successfully added")
-    } else println(" Customer has not been added")
+        println(" Customer has been successfully added")
+    } else {
+        println(" Customer has not been added")
+    }
 }
 
 fun deleteCustomer() =
@@ -694,9 +888,15 @@ fun deleteCustomer() =
             if (customer != null) {
                 println(" Customer has been successfully deleted:")
                 println(" $customer")
-            } else println(" Customer has not been deleted")
-        } else println(" No customer found for ID: $customerID")
-    } else println(" No customers found")
+            } else {
+                println(" Customer has not been deleted")
+            }
+        } else {
+            println(" No customer found for ID: $customerID")
+        }
+    } else {
+        println(" No customers found")
+    }
 
 fun updateCustomer() =
     if (customerAPI.hasCustomers()) {
@@ -711,9 +911,15 @@ fun updateCustomer() =
             if (customerAPI.updateCustomer(customerID, newCustomer)) {
                 println(" Customer has been successfully updated:")
                 println(" ${customerAPI.getCustomer(customerID)}")
-            } else println(" Customer has not been updated")
-        } else println(" No customer found for ID: $customerID")
-    } else println(" No customers found")
+            } else {
+                println(" Customer has not been updated")
+            }
+        } else {
+            println(" No customer found for ID: $customerID")
+        }
+    } else {
+        println(" No customers found")
+    }
 
 fun updateCustomerFName() {
     if (customerAPI.hasCustomers()) {
@@ -726,9 +932,15 @@ fun updateCustomerFName() {
             if (customerAPI.updateCustomer(customerID, newCustomer)) {
                 println(" Customer has been successfully updated:")
                 println(" ${customerAPI.getCustomer(customerID)}")
-            } else println(" Customer has not been updated")
-        } else println(" No customer found for ID: $customerID")
-    } else println(" No customers found")
+            } else {
+                println(" Customer has not been updated")
+            }
+        } else {
+            println(" No customer found for ID: $customerID")
+        }
+    } else {
+        println(" No customers found")
+    }
 }
 
 fun updateCustomerLName() {
@@ -742,9 +954,15 @@ fun updateCustomerLName() {
             if (customerAPI.updateCustomer(customerID, newCustomer)) {
                 println(" Customer has been successfully updated:")
                 println(" ${customerAPI.getCustomer(customerID)}")
-            } else println(" Customer has not been updated")
-        } else println(" No customer found for ID: $customerID")
-    } else println(" No customers found")
+            } else {
+                println(" Customer has not been updated")
+            }
+        } else {
+            println(" No customer found for ID: $customerID")
+        }
+    } else {
+        println(" No customers found")
+    }
 }
 
 fun updateCustomerEmail() {
@@ -758,9 +976,15 @@ fun updateCustomerEmail() {
             if (customerAPI.updateCustomer(customerID, newCustomer)) {
                 println(" Customer has been successfully updated:")
                 println(" ${customerAPI.getCustomer(customerID)}")
-            } else println(" Customer has not been updated")
-        } else println(" No customer found for ID: $customerID")
-    } else println(" No customers found")
+            } else {
+                println(" Customer has not been updated")
+            }
+        } else {
+            println(" No customer found for ID: $customerID")
+        }
+    } else {
+        println(" No customers found")
+    }
 }
 
 fun updateCustomerDOB() {
@@ -774,15 +998,23 @@ fun updateCustomerDOB() {
             if (customerAPI.updateCustomer(customerID, newCustomer)) {
                 println(" Customer has been successfully updated:")
                 println(" ${customerAPI.getCustomer(customerID)}")
-            } else println(" Customer has not been updated")
-        } else println(" No customer found for ID: $customerID")
-    } else println(" No customers found")
+            } else {
+                println(" Customer has not been updated")
+            }
+        } else {
+            println(" No customer found for ID: $customerID")
+        }
+    } else {
+        println(" No customers found")
+    }
 }
 
 fun listAllCustomers() =
     if (customerAPI.hasCustomers()) {
         Utils.printStringList(customerAPI.listAllCustomers()!!)
-    } else println(" No customers found")
+    } else {
+        println(" No customers found")
+    }
 
 fun listAllCustomersByFirstName() =
     if (customerAPI.hasCustomers()) {
@@ -794,8 +1026,12 @@ fun listAllCustomersByFirstName() =
                 )
         if (customerList != null) {
             Utils.printStringList(customerList)
-        } else println(" No customers found with first name: $fName")
-    } else println(" No customers found")
+        } else {
+            println(" No customers found with first name: $fName")
+        }
+    } else {
+        println(" No customers found")
+    }
 
 fun listAllCustomersByLastName() =
     if (customerAPI.hasCustomers()) {
@@ -807,8 +1043,12 @@ fun listAllCustomersByLastName() =
                 )
         if (customerList != null) {
             Utils.printStringList(customerList)
-        } else println(" No customers found with last name: $lName")
-    } else println(" No customers found")
+        } else {
+            println(" No customers found with last name: $lName")
+        }
+    } else {
+        println(" No customers found")
+    }
 
 fun listAllCustomersByAge() =
     if (customerAPI.hasCustomers()) {
@@ -820,8 +1060,12 @@ fun listAllCustomersByAge() =
                 )
         if (customerList != null) {
             Utils.printStringList(customerList)
-        } else println(" No customers found with age: age")
-    } else println(" No customers found")
+        } else {
+            println(" No customers found with age: age")
+        }
+    } else {
+        println(" No customers found")
+    }
 
 fun listAllCustomersByAgeRange() {
     if (customerAPI.hasCustomers()) {
@@ -830,23 +1074,32 @@ fun listAllCustomersByAgeRange() {
         val customerList =
             customerAPI
                 .listAllCustomersByAgeRange(
-                    minAge, maxAge
+                    minAge,
+                    maxAge
                 )
         if (customerList != null) {
             Utils.printStringList(customerList)
-        } else println(" No customers found within age range: $minAge - $maxAge")
-    } else println(" No customers found")
+        } else {
+            println(" No customers found within age range: $minAge - $maxAge")
+        }
+    } else {
+        println(" No customers found")
+    }
 }
 
 fun listAllAdultCustomers() =
     if (customerAPI.hasAdultCustomers()) {
         Utils.printStringList(customerAPI.listAllAdultCustomers()!!)
-    } else println(" No adult customers found")
+    } else {
+        println(" No adult customers found")
+    }
 
 fun listAllChildCustomers() {
     if (customerAPI.hasChildCustomers()) {
         Utils.printStringList(customerAPI.listAllChildCustomers()!!)
-    } else println(" No child customers found")
+    } else {
+        println(" No child customers found")
+    }
 }
 
 // Miscellaneous
@@ -858,16 +1111,17 @@ fun getUserOption(): Int {
 }
 
 fun initControllersWithSerializer() {
-    var option  = 0
-    while(option !in 1..2) {
+    var option = 0
+    while (option !in 1..2) {
         println(" ---")
         println(" Would you like to save using JSON or XML")
         println(" ---")
         println(" 1 - JSON")
         println(" 2 - XML")
-        option  = getUserOption()
-        if (option != 1 && option != 2)
+        option = getUserOption()
+        if (option != 1 && option != 2) {
             println(" You must choose 1 (JSON) or 2 (XML) to proceed")
+        }
         println(" ---")
     }
 
@@ -877,8 +1131,7 @@ fun initControllersWithSerializer() {
         customerAPI = CustomerAPI(JSONSerializer(File("customers.json")))
         movieAPI = MovieAPI(JSONSerializer(File("movies.json")))
         screeningAPI = ScreeningAPI(JSONSerializer(File("screenings.json")))
-    }
-    else {
+    } else {
         // XML
         bookingAPI = BookingAPI(XMLSerializer(File("bookings.xml")))
         customerAPI = CustomerAPI(XMLSerializer(File("customers.xml")))
@@ -888,8 +1141,8 @@ fun initControllersWithSerializer() {
 }
 
 fun save() {
-    try{
-        //bookingAPI.store()
+    try {
+        // bookingAPI.store()
         customerAPI.store()
         movieAPI.store()
         screeningAPI.store()
@@ -899,8 +1152,8 @@ fun save() {
 }
 
 fun load() {
-    try{
-        //bookingAPI.load()
+    try {
+        // bookingAPI.load()
         customerAPI.load()
         movieAPI.load()
         screeningAPI.load()

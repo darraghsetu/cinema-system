@@ -1,13 +1,18 @@
 package controllers
 
 import models.Customer
-import persistence.JSONSerializer
-import persistence.XMLSerializer
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import persistence.JSONSerializer
+import persistence.XMLSerializer
 import java.io.File
 import java.time.LocalDate
 
@@ -243,7 +248,7 @@ class CustomerAPITest {
         @Test
         fun `listAllCustomersByAge returns list of Customer strings if Customers of the specified age exist in the ArrayList`() {
             assertTrue(populatedCustomers!!.hasCustomers())
-            val daithi2 = daithi!!.copy(dob=LocalDate.of(2006, 1, 1))
+            val daithi2 = daithi!!.copy(dob = LocalDate.of(2006, 1, 1))
             populatedCustomers!!.addCustomer(daithi2)
             val eighteensList = populatedCustomers!!.listAllCustomersByAge(18)!!
             assertNotNull(eighteensList)
@@ -334,7 +339,6 @@ class CustomerAPITest {
         fun numberOfCustomersCalculatedCorrectly() {
             assertEquals(0, emptyCustomers!!.numberOfCustomers())
             assertEquals(3, populatedCustomers!!.numberOfCustomers())
-
         }
 
         @Test
@@ -505,11 +509,11 @@ class CustomerAPITest {
             val storingCustomers = CustomerAPI(XMLSerializer(File("customersTest.xml")))
             storingCustomers.store()
 
-            //Loading the empty customersTest.xml file into a new object
+            // Loading the empty customersTest.xml file into a new object
             val loadedCustomers = CustomerAPI(XMLSerializer(File("customersTest.xml")))
             loadedCustomers.load()
 
-            //Comparing the source of the notes (storingCustomers) with the XML loaded notes (loadedCustomers)
+            // Comparing the source of the notes (storingCustomers) with the XML loaded notes (loadedCustomers)
             assertEquals(0, storingCustomers.numberOfCustomers())
             assertEquals(0, loadedCustomers.numberOfCustomers())
             assertEquals(storingCustomers.numberOfCustomers(), loadedCustomers.numberOfCustomers())
@@ -524,11 +528,11 @@ class CustomerAPITest {
             storingCustomers.addCustomer(cillian!!)
             storingCustomers.store()
 
-            //Loading customersTest.xml into a different collection
+            // Loading customersTest.xml into a different collection
             val loadedCustomers = CustomerAPI(XMLSerializer(File("customersTest.xml")))
             loadedCustomers.load()
 
-            //Comparing the source of the customers (storingCustomers) with the XML loaded customers (loadedCustomers)
+            // Comparing the source of the customers (storingCustomers) with the XML loaded customers (loadedCustomers)
             assertEquals(3, storingCustomers.numberOfCustomers())
             assertEquals(3, loadedCustomers.numberOfCustomers())
             assertEquals(storingCustomers.numberOfCustomers(), loadedCustomers.numberOfCustomers())
@@ -543,11 +547,11 @@ class CustomerAPITest {
             val storingCustomers = CustomerAPI(JSONSerializer(File("customersTest.json")))
             storingCustomers.store()
 
-            //Loading the empty customersTest.json file into a new object
+            // Loading the empty customersTest.json file into a new object
             val loadedCustomers = CustomerAPI(JSONSerializer(File("customersTest.json")))
             loadedCustomers.load()
 
-            //Comparing the source of the customers (storingCustomers) with the json loaded customers (loadedCustomers)
+            // Comparing the source of the customers (storingCustomers) with the json loaded customers (loadedCustomers)
             assertEquals(0, storingCustomers.numberOfCustomers())
             assertEquals(0, loadedCustomers.numberOfCustomers())
             assertEquals(storingCustomers.numberOfCustomers(), loadedCustomers.numberOfCustomers())
@@ -562,11 +566,11 @@ class CustomerAPITest {
             storingCustomers.addCustomer(cillian!!)
             storingCustomers.store()
 
-            //Loading customersTest.json into a different collection
+            // Loading customersTest.json into a different collection
             val loadedCustomers = CustomerAPI(JSONSerializer(File("customersTest.json")))
             loadedCustomers.load()
 
-            //Comparing the source of the customers (storingCustomers) with the json loaded customers (loadedCustomers)
+            // Comparing the source of the customers (storingCustomers) with the json loaded customers (loadedCustomers)
             assertEquals(3, storingCustomers.numberOfCustomers())
             assertEquals(3, loadedCustomers.numberOfCustomers())
             assertEquals(storingCustomers.numberOfCustomers(), loadedCustomers.numberOfCustomers())
@@ -575,5 +579,4 @@ class CustomerAPITest {
             assertEquals(storingCustomers.getCustomer(2), loadedCustomers.getCustomer(2))
         }
     }
-
 }

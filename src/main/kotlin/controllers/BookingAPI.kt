@@ -12,35 +12,37 @@ class BookingAPI(serializerType: Serializer) {
     fun addBooking(booking: Booking): Booking? {
         val bookingID = getNextID()
         booking.bookingID = bookingID
-        return if( bookings.add(booking) ) getBooking(bookingID) else null
+        return if (bookings.add(booking)) getBooking(bookingID) else null
     }
 
     fun cancelBooking(id: Int) =
         if (bookingExists(id)) {
             getBooking(id)!!.cancelled = true
             true
-        } else false
+        } else {
+            false
+        }
 
     fun getBooking(id: Int) =
-        bookings.find{ it.bookingID == id }
+        bookings.find { it.bookingID == id }
 
     private fun getNextID() =
         currentID++
 
     private fun filterBookings(predicate: (Booking) -> (Boolean)) =
         bookings
-            .filter{ predicate(it) }
-            .map{ it.toString() }
+            .filter { predicate(it) }
+            .map { it.toString() }
             .ifEmpty { null }
 
     fun listAllBookings() =
-        filterBookings{ true }
+        filterBookings { true }
 
     fun listAllActiveBookings() =
-        filterBookings{ !it.cancelled }
+        filterBookings { !it.cancelled }
 
     fun listAllCancelledBookings() =
-        filterBookings{ it.cancelled }
+        filterBookings { it.cancelled }
 
     fun listActiveBookingsByCustomer(customerID: Int) =
         filterBookings { it.customer.customerID == customerID && !it.cancelled }
@@ -70,16 +72,16 @@ class BookingAPI(serializerType: Serializer) {
         listActiveBookingsByMovie(movieID)?.size ?: 0
 
     fun totalSales() =
-        bookings.filter{ !it.cancelled }.sumOf{ it.salePrice }
+        bookings.filter { !it.cancelled }.sumOf { it.salePrice }
 
     fun totalCancelledSales() =
-        bookings.filter{ it.cancelled }.sumOf{ it.salePrice }
+        bookings.filter { it.cancelled }.sumOf { it.salePrice }
 
     fun totalSalesByScreening(screeningID: Int) =
-        bookings.filter{ it.screening.screeningID == screeningID }.sumOf{ it.salePrice }
+        bookings.filter { it.screening.screeningID == screeningID }.sumOf { it.salePrice }
 
     fun totalSalesByMovie(movieID: Int) =
-        bookings.filter{ it.screening.movie.movieID == movieID }.sumOf{ it.salePrice }
+        bookings.filter { it.screening.movie.movieID == movieID }.sumOf { it.salePrice }
 
     fun hasBookings() =
         numberOfBookings() > 0
@@ -97,7 +99,7 @@ class BookingAPI(serializerType: Serializer) {
         numberOfActiveBookingsByScreening(screeningID) > 0
 
     fun bookingExists(id: Int) =
-        bookings.any{ it.bookingID == id }
+        bookings.any { it.bookingID == id }
 
     @Throws(Exception::class)
     fun load() {

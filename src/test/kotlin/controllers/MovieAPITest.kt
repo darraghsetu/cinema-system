@@ -1,13 +1,17 @@
 package controllers
 
 import models.Movie
-import persistence.XMLSerializer
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import persistence.JSONSerializer
+import persistence.XMLSerializer
 import java.io.File
 
 class MovieAPITest {
@@ -26,7 +30,7 @@ class MovieAPITest {
         matrix = Movie("The Matrix", "Lana Wachowski, Lilly Wachowski", 136, "15A")
         gladiator = Movie("Gladiator", "Ridley Scott", 155, "16")
         robocop = Movie("Robocop", "Paul Verhoeven", 102, "18")
-        casablanca = Movie( "Casablanca", "Michael Curtiz", 102, "G" ) // Not added
+        casablanca = Movie("Casablanca", "Michael Curtiz", 102, "G") // Not added
 
         populatedMovies!!.addMovie(paddington!!)
         populatedMovies!!.addMovie(matrix!!)
@@ -255,11 +259,11 @@ class MovieAPITest {
             val storingMovies = MovieAPI(XMLSerializer(File("moviesTest.xml")))
             storingMovies.store()
 
-            //Loading the empty moviesTest.xml file into a new object
+            // Loading the empty moviesTest.xml file into a new object
             val loadedMovies = MovieAPI(XMLSerializer(File("moviesTest.xml")))
             loadedMovies.load()
 
-            //Comparing the source of the movies (storingMovies) with the XML loaded movies (loadedMovies)
+            // Comparing the source of the movies (storingMovies) with the XML loaded movies (loadedMovies)
             assertEquals(0, storingMovies.numberOfMovies())
             assertEquals(0, loadedMovies.numberOfMovies())
             assertEquals(storingMovies.numberOfMovies(), loadedMovies.numberOfMovies())
@@ -274,11 +278,11 @@ class MovieAPITest {
             storingMovies.addMovie(gladiator!!)
             storingMovies.store()
 
-            //Loading moviesTest.xml into a different collection
+            // Loading moviesTest.xml into a different collection
             val loadedMovies = MovieAPI(XMLSerializer(File("moviesTest.xml")))
             loadedMovies.load()
 
-            //Comparing the source of the movies (storingMovies) with the XML loaded movies (loadedMovies)
+            // Comparing the source of the movies (storingMovies) with the XML loaded movies (loadedMovies)
             assertEquals(3, storingMovies.numberOfMovies())
             assertEquals(3, loadedMovies.numberOfMovies())
             assertEquals(storingMovies.numberOfMovies(), loadedMovies.numberOfMovies())
@@ -293,11 +297,11 @@ class MovieAPITest {
             val storingMovies = MovieAPI(JSONSerializer(File("moviesTest.json")))
             storingMovies.store()
 
-            //Loading the empty moviesTest.json file into a new object
+            // Loading the empty moviesTest.json file into a new object
             val loadedMovies = MovieAPI(JSONSerializer(File("moviesTest.json")))
             loadedMovies.load()
 
-            //Comparing the source of the movies (storingMovies) with the json loaded movies (loadedMovies)
+            // Comparing the source of the movies (storingMovies) with the json loaded movies (loadedMovies)
             assertEquals(0, storingMovies.numberOfMovies())
             assertEquals(0, loadedMovies.numberOfMovies())
             assertEquals(storingMovies.numberOfMovies(), loadedMovies.numberOfMovies())
@@ -312,11 +316,11 @@ class MovieAPITest {
             storingMovies.addMovie(gladiator!!)
             storingMovies.store()
 
-            //Loading moviesTest.json into a different collection
+            // Loading moviesTest.json into a different collection
             val loadedMovies = MovieAPI(JSONSerializer(File("moviesTest.json")))
             loadedMovies.load()
 
-            //Comparing the source of the movies (storingMovies) with the json loaded movies (loadedMovies)
+            // Comparing the source of the movies (storingMovies) with the json loaded movies (loadedMovies)
             assertEquals(3, storingMovies.numberOfMovies())
             assertEquals(3, loadedMovies.numberOfMovies())
             assertEquals(storingMovies.numberOfMovies(), loadedMovies.numberOfMovies())

@@ -10,7 +10,8 @@ object MenuUtilities {
             menuOptions
                 .dropLast(1)
                 .joinToString(separator = "\n") {
-                    option -> "| ${menuOptions.indexOf(option) + 1} - $option"
+                        option ->
+                    "| ${menuOptions.indexOf(option) + 1} - $option"
                 }
 
         print(
@@ -21,7 +22,8 @@ object MenuUtilities {
             | $optionLowerBound - ${menuOptions.last()}
             | ---
             | Please enter a number between $optionLowerBound and $optionUpperBound
-            |""".trimMargin()
+            |
+            """.trimMargin()
         )
     }
 
@@ -35,7 +37,7 @@ object MenuUtilities {
                 "Screenings Menu",
                 "Customers Menu",
                 "Reports Menu",
-                "Exit",
+                "Exit"
             )
         )
 
@@ -46,7 +48,7 @@ object MenuUtilities {
             listOf(
                 "Add a booking",
                 "View bookings",
-                "Return to Main Menu",
+                "Return to Main Menu"
             )
         )
 
@@ -59,7 +61,7 @@ object MenuUtilities {
                 "View movie details",
                 "View all movies",
                 "View all movies by certification",
-                "Return to Main Menu",
+                "Return to Main Menu"
             )
         )
 
@@ -72,7 +74,7 @@ object MenuUtilities {
                 "Delete a screening",
                 "Update a screening",
                 "View screenings",
-                "Return to Main Menu",
+                "Return to Main Menu"
             )
         )
 
@@ -85,7 +87,7 @@ object MenuUtilities {
                 "Delete a customer",
                 "Update a customer",
                 "View customers",
-                "Return to Main Menu",
+                "Return to Main Menu"
             )
         )
 
@@ -95,7 +97,7 @@ object MenuUtilities {
             "Reports Menu",
             listOf(
                 "View reports",
-                "Return to Main Menu",
+                "Return to Main Menu"
             )
         )
 
@@ -110,7 +112,7 @@ object MenuUtilities {
                 "View all bookings by customer",
                 "View all bookings by screening",
                 "View all bookings by movie",
-                "Return to Bookings Menu",
+                "Return to Bookings Menu"
             )
         )
 
@@ -124,7 +126,7 @@ object MenuUtilities {
                 "Delete a screening by date",
                 "Delete all screenings by movie",
                 "Delete all screenings by date",
-                "Return to Screenings Menu",
+                "Return to Screenings Menu"
             )
         )
 
@@ -137,7 +139,7 @@ object MenuUtilities {
                 "Update screening's date and time",
                 "Update screening's theatre",
                 "Update all details for screening",
-                "Return to Screenings Menu",
+                "Return to Screenings Menu"
             )
         )
 
@@ -154,7 +156,7 @@ object MenuUtilities {
                 "View today's remaining screenings by movie",
                 "View this week's remaining screenings",
                 "View this week's remaining screenings by movie",
-                "Return to Screenings Menu",
+                "Return to Screenings Menu"
             )
         )
 
@@ -168,7 +170,7 @@ object MenuUtilities {
                 "Update customer's email",
                 "Update customer's date of birth",
                 "Update all details for customer",
-                "Return to Customers Menu",
+                "Return to Customers Menu"
             )
         )
 
@@ -184,7 +186,7 @@ object MenuUtilities {
                 "View all customers by age range",
                 "View all adult customers",
                 "View all child customers",
-                "Returns to Customers Menu",
+                "Returns to Customers Menu"
             )
         )
 }
