@@ -7,13 +7,13 @@ data class Customer(
     var fName: String,
     var lName: String,
     var email: String,
-    var dob: LocalDate,
+    var dob: LocalDate
 ) {
     internal var customerID = 0
     internal var isAdult = false
 
     override fun toString() =
         "(ID: $customerID) $fName $lName. " +
-        "Date of Birth: ${dob.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}. " +
-        "Email: $email"
+            "Date of Birth: ${dob.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}. " +
+            "Email: $email"
 }

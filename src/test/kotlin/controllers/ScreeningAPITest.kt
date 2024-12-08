@@ -2,13 +2,18 @@ package controllers
 
 import models.Movie
 import models.Screening
-import persistence.XMLSerializer
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import persistence.JSONSerializer
+import persistence.XMLSerializer
 import java.io.File
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -31,11 +36,10 @@ class ScreeningAPITest {
     private var emptyScreenings: ScreeningAPI? = null
     private var populatedScreenings: ScreeningAPI? = null
 
-
     private var todayMiddayDateTime: LocalDateTime? = null
     private var todayMiddayDateTimePlusOneDays: LocalDateTime? = null
     private var todayMiddayDateTimePlusTwoDays: LocalDateTime? = null
-    
+
     private var todayDate: LocalDate? = null
     private var todayDatePlusOneDays: LocalDate? = null
     private var todayDatePlusTwoDays: LocalDate? = null
@@ -58,14 +62,14 @@ class ScreeningAPITest {
         casablanca = movies.getMovie(1004)
 
         // DateTimes and Dates
-        todayMiddayDateTime = LocalDateTime.of( LocalDate.now(), LocalTime.NOON )
+        todayMiddayDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.NOON)
         todayMiddayDateTimePlusOneDays = todayMiddayDateTime!!.plusDays(1)
         todayMiddayDateTimePlusTwoDays = todayMiddayDateTime!!.plusDays(2)
-        
+
         todayDate = LocalDate.now()
         todayDatePlusOneDays = todayDate!!.plusDays(1)
         todayDatePlusTwoDays = todayDate!!.plusDays(2)
-        
+
         // Screenings
         paddingtonScreening1 = Screening(paddington!!, todayMiddayDateTimePlusOneDays!!, 1)
         paddingtonScreening2 = Screening(paddington!!, todayMiddayDateTimePlusTwoDays!!, 2)
@@ -89,20 +93,20 @@ class ScreeningAPITest {
         gladiator = null
         robocop = null
         casablanca = null
-        
+
         todayMiddayDateTime = null
         todayMiddayDateTimePlusOneDays = null
         todayMiddayDateTimePlusTwoDays = null
         todayDate = null
         todayDatePlusOneDays = null
         todayDatePlusTwoDays = null
-        
+
         paddingtonScreening1 = null
         paddingtonScreening2 = null
         matrixScreening1 = null
         matrixScreening2 = null
         robocopScreening1 = null
-        
+
         populatedScreenings = null
         emptyScreenings = null
     }
@@ -207,7 +211,7 @@ class ScreeningAPITest {
             assertFalse(emptyScreenings!!.hasScreenings())
             assertFalse(emptyScreenings!!.updateScreening(1000, robocopScreening1!!))
         }
-        
+
         @Test
         fun `updateScreening returns false if the specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
@@ -242,14 +246,14 @@ class ScreeningAPITest {
             assertFalse(emptyScreenings!!.hasScreenings())
             assertNull(emptyScreenings!!.deleteScreening(1000))
         }
-        
+
         @Test
         fun `deleteScreening returns null if the specified Screening ID does not exist in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
             assertFalse(populatedScreenings!!.screeningExists(9999))
             assertNull(populatedScreenings!!.deleteScreening(9999))
         }
-        
+
         @Test
         fun `deleteScreening deletes and returns Screening if the specified Screening ID exists in the ArrayList`() {
             assertTrue(populatedScreenings!!.hasScreenings())
@@ -354,12 +358,12 @@ class ScreeningAPITest {
             assertEquals(15, populatedScreenings!!.numberOfAvailableSeats(1000))
             assertFalse(populatedScreenings!!.reserveSeats(1000, listOf("A99")))
             assertEquals(15, populatedScreenings!!.numberOfAvailableSeats(1000))
-            
+
             // Test for valid seats that aren't available for reservation
             assertEquals(15, populatedScreenings!!.numberOfAvailableSeats(1000))
             assertTrue(populatedScreenings!!.reserveSeats(1000, listOf("A1", "A2", "A3", "A4")))
             assertEquals(11, populatedScreenings!!.numberOfAvailableSeats(1000))
-            
+
             assertFalse(populatedScreenings!!.reserveSeats(1000, listOf("A1", "A2", "A3", "A4")))
             assertEquals(11, populatedScreenings!!.numberOfAvailableSeats(1000))
         }
@@ -462,7 +466,8 @@ class ScreeningAPITest {
         @Test
         fun `listScreeningsByMovieAndDate returns null if the ArrayList is empty`() {
             assertFalse(emptyScreenings!!.hasScreenings())
-            assertNull(emptyScreenings!!.listScreeningsByMovieAndDate(1000, todayDatePlusOneDays!!)
+            assertNull(
+                emptyScreenings!!.listScreeningsByMovieAndDate(1000, todayDatePlusOneDays!!)
             )
         }
 
@@ -671,7 +676,7 @@ class ScreeningAPITest {
                 listOf(
                     "A1", "A2", "A3", "A4", "A5",
                     "B1", "B2", "B3", "B4", "B5",
-                    "C1", "C2", "C3", "C4", "C5",
+                    "C1", "C2", "C3", "C4", "C5"
                 )
             )
 
@@ -1050,7 +1055,7 @@ class ScreeningAPITest {
             assertFalse(
                 populatedScreenings!!.availableDateTime(
                     matrixScreening1!!.screeningDateTime.plusHours(1),
-                    matrixScreening1!!.movie.runtime, //Matrix Runtime: 136 min
+                    matrixScreening1!!.movie.runtime, // Matrix Runtime: 136 min
                     matrixScreening1!!.theatreID
                 )
             )
@@ -1165,11 +1170,11 @@ class ScreeningAPITest {
             val storingScreenings = ScreeningAPI(XMLSerializer(File("screeningsTest.xml")))
             storingScreenings.store()
 
-            //Loading the empty screeningsTest.xml file into a new object
+            // Loading the empty screeningsTest.xml file into a new object
             val loadedScreenings = ScreeningAPI(XMLSerializer(File("screeningsTest.xml")))
             loadedScreenings.load()
 
-            //Comparing the source of the screenings (storingScreenings) with the XML loaded screenings (loadedScreenings)
+            // Comparing the source of the screenings (storingScreenings) with the XML loaded screenings (loadedScreenings)
             assertEquals(0, storingScreenings.numberOfScreenings())
             assertEquals(0, loadedScreenings.numberOfScreenings())
             assertEquals(storingScreenings.numberOfScreenings(), loadedScreenings.numberOfScreenings())
@@ -1184,11 +1189,11 @@ class ScreeningAPITest {
             storingScreenings.addScreening(matrixScreening1!!)
             storingScreenings.store()
 
-            //Loading screeningsTest.xml into a different collection
+            // Loading screeningsTest.xml into a different collection
             val loadedScreenings = ScreeningAPI(XMLSerializer(File("screeningsTest.xml")))
             loadedScreenings.load()
 
-            //Comparing the source of the screenings (storingScreenings) with the XML loaded screenings (loadedScreenings)
+            // Comparing the source of the screenings (storingScreenings) with the XML loaded screenings (loadedScreenings)
             assertEquals(3, storingScreenings.numberOfScreenings())
             assertEquals(3, loadedScreenings.numberOfScreenings())
             assertEquals(storingScreenings.numberOfScreenings(), loadedScreenings.numberOfScreenings())
@@ -1203,11 +1208,11 @@ class ScreeningAPITest {
             val storingScreenings = ScreeningAPI(JSONSerializer(File("screeningsTest.json")))
             storingScreenings.store()
 
-            //Loading the empty screeningsTest.json file into a new object
+            // Loading the empty screeningsTest.json file into a new object
             val loadedScreenings = ScreeningAPI(JSONSerializer(File("screeningsTest.json")))
             loadedScreenings.load()
 
-            //Comparing the source of the screenings (storingScreenings) with the json loaded screenings (loadedScreenings)
+            // Comparing the source of the screenings (storingScreenings) with the json loaded screenings (loadedScreenings)
             assertEquals(0, storingScreenings.numberOfScreenings())
             assertEquals(0, loadedScreenings.numberOfScreenings())
             assertEquals(storingScreenings.numberOfScreenings(), loadedScreenings.numberOfScreenings())
@@ -1222,11 +1227,11 @@ class ScreeningAPITest {
             storingScreenings.addScreening(matrixScreening1!!)
             storingScreenings.store()
 
-            //Loading screeningsTest.json into a different collection
+            // Loading screeningsTest.json into a different collection
             val loadedScreenings = ScreeningAPI(JSONSerializer(File("screeningsTest.json")))
             loadedScreenings.load()
 
-            //Comparing the source of the screenings (storingScreenings) with the json loaded screenings (loadedScreenings)
+            // Comparing the source of the screenings (storingScreenings) with the json loaded screenings (loadedScreenings)
             assertEquals(3, storingScreenings.numberOfScreenings())
             assertEquals(3, loadedScreenings.numberOfScreenings())
             assertEquals(storingScreenings.numberOfScreenings(), loadedScreenings.numberOfScreenings())
